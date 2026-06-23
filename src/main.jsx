@@ -71,7 +71,8 @@ function App() {
     total: destinations.length,
     top: destinations.filter(d => statusOf(d) === 'Top Pick').length,
     bucket: destinations.filter(d => statusOf(d) === 'Bucket List').length,
-    favorites: destinations.filter(favOf).length
+    favorites: destinations.filter(favOf).length,
+    visited: destinations.filter(d => statusOf(d) === 'Visited').length
   };
 
   return (
@@ -88,7 +89,10 @@ function App() {
               <button onClick={() => { setView('dashboard'); setFilters({...filters, region:'Europe'}); }}>Europe</button>
               <button onClick={() => { setView('dashboard'); setFilters({...filters, region:'Bucket List'}); }}>Bucket List</button>
               <button onClick={() => setView('favorites')}>Favorites</button>
+              <button onClick={() => setView('visited')}>Visited</button>
               <button onClick={() => setView('stadiums')}>Stadiums</button>
+              <button onClick={() => setView('tripFinder')}>Trip Finder</button>
+              <button onClick={() => setView('budget')}>Budget</button>
               <button onClick={() => setView('add')}>+ Add Trip</button>
             </nav>
           </div>
@@ -99,6 +103,7 @@ function App() {
             <div><b>{stats.top}</b><span>Top Picks</span></div>
             <div><b>{stats.bucket}</b><span>Bucket List</span></div>
             <div><b>{stats.favorites}</b><span>Favorites</span></div>
+            <div><b>{stats.visited}</b><span>Visited</span></div>
           </div>
         </div>
       </header>
@@ -120,6 +125,19 @@ function App() {
                 <h2>Idea Inbox</h2>
                 <textarea value={inbox} onChange={e => { setInbox(e.target.value); localStorage.setItem('ideaInbox', e.target.value); }} placeholder="Add quick ideas here..." />
               </div>
+            </section>
+
+            <section className="panel">
+              <h2>Visited Trips</h2>
+              {destinations.filter(d => statusOf(d) === 'Visited').length ? (
+                <div className="cards compactCards">
+                  {destinations.filter(d => statusOf(d) === 'Visited').map(d => (
+                    <TripCard key={d.id} d={d} status={statusOf(d)} favorite={favOf(d)} open={() => { setSelected(d); setView('detail'); window.scrollTo(0,0); }} toggleFav={(e) => { e.stopPropagation(); updateNote(d.id, { favorite: !favOf(d) }); }} />
+                  ))}
+                </div>
+              ) : (
+                <p className="emptyText">No trips marked visited yet. Open any trip and change its status to <b>Visited</b> to make it appear here.</p>
+              )}
             </section>
 
             <section className="panel">
@@ -155,7 +173,10 @@ function App() {
 
         {view === 'detail' && selected && <Detail d={selected} note={notes[selected.id] || {}} updateNote={updateNote} status={statusOf(selected)} goBack={() => setView('dashboard')} />}
         {view === 'favorites' && <section className="cards">{destinations.filter(favOf).map(d => <TripCard key={d.id} d={d} status={statusOf(d)} favorite={true} open={() => { setSelected(d); setView('detail'); }} toggleFav={() => {}} />)}</section>}
+        {view === 'visited' && <Visited destinations={destinations.filter(d => statusOf(d) === 'Visited')} openTrip={(d) => { setSelected(d); setView('detail'); }} goBack={() => setView('dashboard')} statusOf={statusOf} favOf={favOf} updateNote={updateNote} />}
         {view === 'stadiums' && <Stadiums destinations={destinations} />}
+        {view === 'tripFinder' && <TripFinder destinations={destinations} openTrip={(d) => { setSelected(d); setView('detail'); window.scrollTo(0,0); }} />}
+        {view === 'budget' && <BudgetEstimator destinations={destinations} />}
         {view === 'add' && <AddTrip destinations={destinations} setDestinations={setDestinations} goBack={() => setView('dashboard')} />}
       </main>
     </div>
@@ -209,9 +230,24 @@ function Detail({d, note, updateNote, status, goBack}) {
         <List title="Hotels" items={d.hotels} linked />
         <List title="Restaurants" items={d.restaurants} linked />
       </section>
+      <PhotoGallery d={d} />
+      <BudgetTripCard d={d} />
       <Panel title="Sample Itinerary"><ol>{d.itinerary.map((x,i) => <li key={i}><b>Day {i+1}:</b> {x}</li>)}</ol></Panel>
+      <Panel title="Planning Checklist">
+        <div className="checkGrid">
+          {['Flights checked','Hotel shortlist saved','Restaurant reservations','Sports/stadium stop planned','Maps saved','Packing list reviewed','Budget reviewed','Photos spots saved'].map(item => (
+            <label key={item}><input type="checkbox" /> {item}</label>
+          ))}
+        </div>
+      </Panel>
       <Panel title="Anthony & Stephanie’s Notes">
-        <textarea value={note.notes || ''} onChange={e => updateNote(d.id, {notes:e.target.value})} placeholder="Add research notes, memories, restaurants, reservations..." />
+        <div className="noteGrid">
+          <label>Ideas<textarea value={note.ideas || ''} onChange={e => updateNote(d.id, {ideas:e.target.value})} placeholder="Trip ideas, must-do experiences, timing..." /></label>
+          <label>Restaurants<textarea value={note.restaurantNotes || ''} onChange={e => updateNote(d.id, {restaurantNotes:e.target.value})} placeholder="Restaurants to research, reservations, favorite meals..." /></label>
+          <label>Memories<textarea value={note.memories || ''} onChange={e => updateNote(d.id, {memories:e.target.value})} placeholder="After visiting, add favorite memories here..." /></label>
+          <label>Packing<textarea value={note.packing || ''} onChange={e => updateNote(d.id, {packing:e.target.value})} placeholder="Packing notes, weather reminders, special items..." /></label>
+        </div>
+        <textarea value={note.notes || ''} onChange={e => updateNote(d.id, {notes:e.target.value})} placeholder="General notes..." />
       </Panel>
     </>
   );
@@ -255,5 +291,110 @@ function AddTrip({destinations, setDestinations, goBack}) {
 function Field({label, children}) { return <label className="field">{label}{children}</label>; }
 function Panel({title, children}) { return <section className="panel"><h2>{title}</h2>{children}</section>; }
 function List({title, items, linked}) { return <Panel title={title}><ul>{items.map(x => <li key={x}>{linked ? <a target="_blank" href={gmap(x)}>{x}</a> : x}</li>)}</ul></Panel>; }
+
+
+function Visited({destinations, openTrip, goBack, statusOf, favOf, updateNote}) {
+  return <section className="panel">
+    <button className="btn secondary" onClick={goBack}>← Back</button>
+    <h2>Visited Trips</h2>
+    <p>Trips you mark as <b>Visited</b> will appear here. Open any destination and change its status to Visited.</p>
+    <div className="cards">
+      {destinations.length ? destinations.map(d => (
+        <TripCard key={d.id} d={d} status={statusOf(d)} favorite={favOf(d)} open={() => openTrip(d)} toggleFav={(e) => { e.stopPropagation(); updateNote(d.id, { favorite: !favOf(d) }); }} />
+      )) : <div className="emptyBox">No trips marked visited yet.</div>}
+    </div>
+  </section>
+}
+
+function PhotoGallery({d}) {
+  const gallery = [d.hero, ...(d.photos || [])].slice(0, 6);
+  return <Panel title="Photo Gallery & Shot List">
+    <div className="photoGrid">
+      {gallery.map((p, i) => (
+        <a key={i} className="photoTile" href={gmap(p)} target="_blank" style={{backgroundImage:`url("${img(p)}")`}}>
+          <span>{p}</span>
+        </a>
+      ))}
+    </div>
+  </Panel>
+}
+
+function BudgetTripCard({d}) {
+  const base = d.budget === 'Bucket List' ? 6500 : d.budget === 'Premium' ? 4500 : d.budget === 'Value' ? 1800 : 3000;
+  const days = parseInt(String(d.idealDays).match(/\d+/)?.[0] || 5, 10);
+  const hotel = d.budget === 'Bucket List' ? 450 : d.budget === 'Premium' ? 325 : d.budget === 'Value' ? 150 : 225;
+  const food = d.budget === 'Bucket List' ? 220 : d.budget === 'Premium' ? 175 : d.budget === 'Value' ? 90 : 130;
+  const estimated = Math.round((hotel + food) * days + base * 0.35);
+  return <Panel title="Quick Cost Snapshot">
+    <div className="budgetGrid">
+      <div><b>Style</b><span>{d.budget}</span></div>
+      <div><b>Estimated Days</b><span>{d.idealDays}</span></div>
+      <div><b>Hotel/Day</b><span>${hotel}</span></div>
+      <div><b>Food/Day</b><span>${food}</span></div>
+      <div><b>Starter Estimate</b><span>${estimated.toLocaleString()}</span></div>
+    </div>
+    <p className="smallText">This is a rough planning estimate for comparison only. Use the Budget tab for a custom calculator.</p>
+  </Panel>
+}
+
+function TripFinder({destinations, openTrip}) {
+  const [prefs, setPrefs] = React.useState({days:'5-7', season:'Fall', budget:'Comfortable', style:'Food'});
+  const scoreTrip = d => {
+    let score = 0;
+    if (d.length.includes(prefs.days)) score += 35;
+    if (d.seasons.includes(prefs.season)) score += 25;
+    if (d.budget === prefs.budget) score += 20;
+    if (d.styles.includes(prefs.style)) score += 20;
+    return score;
+  };
+  const ranked = [...destinations].map(d => ({...d, match: scoreTrip(d)})).sort((a,b) => b.match - a.match).slice(0, 10);
+  return <section className="panel">
+    <h2>Where Should We Go?</h2>
+    <p>Pick a few preferences and the planner ranks the best matches from your trip database.</p>
+    <div className="filters">
+      <Field label="Days"><select value={prefs.days} onChange={e=>setPrefs({...prefs, days:e.target.value})}>{['3-4','5-7','8-10','10+'].map(x=><option key={x}>{x}</option>)}</select></Field>
+      <Field label="Season"><select value={prefs.season} onChange={e=>setPrefs({...prefs, season:e.target.value})}>{['Spring','Summer','Fall','Winter'].map(x=><option key={x}>{x}</option>)}</select></Field>
+      <Field label="Budget"><select value={prefs.budget} onChange={e=>setPrefs({...prefs, budget:e.target.value})}>{['Value','Comfortable','Premium','Bucket List'].map(x=><option key={x}>{x}</option>)}</select></Field>
+      <Field label="Style"><select value={prefs.style} onChange={e=>setPrefs({...prefs, style:e.target.value})}>{['Food','Romantic','Photography','Sports','Road Trip','Mountains','Ocean','City','History','Relaxing','National Parks'].map(x=><option key={x}>{x}</option>)}</select></Field>
+    </div>
+    <div className="finderList">
+      {ranked.map((d,i)=><div key={d.id} className="finderRow" onClick={()=>openTrip(d)}>
+        <b>{i+1}. {d.title}</b>
+        <span>{d.match}% match · {d.region} · {d.idealDays} · {d.budget}</span>
+        <small>Matches: {d.length.includes(prefs.days)?'days ':''}{d.seasons.includes(prefs.season)?'season ':''}{d.budget===prefs.budget?'budget ':''}{d.styles.includes(prefs.style)?'style':''}</small>
+      </div>)}
+    </div>
+  </section>
+}
+
+function BudgetEstimator({destinations}) {
+  const [tripId, setTripId] = React.useState(destinations[0]?.id || '');
+  const [days, setDays] = React.useState(5);
+  const [hotel, setHotel] = React.useState(225);
+  const [food, setFood] = React.useState(130);
+  const [flight, setFlight] = React.useState(650);
+  const [car, setCar] = React.useState(60);
+  const [activities, setActivities] = React.useState(75);
+  const selected = destinations.find(d=>d.id===tripId) || destinations[0];
+  const total = (Number(hotel)+Number(food)+Number(car)+Number(activities))*Number(days) + Number(flight)*2;
+  return <section className="panel">
+    <h2>Trip Cost Estimator</h2>
+    <p>Use this for quick planning comparisons for two travelers.</p>
+    <div className="budgetForm">
+      <Field label="Trip"><select value={tripId} onChange={e=>setTripId(e.target.value)}>{destinations.map(d=><option key={d.id} value={d.id}>{d.title}</option>)}</select></Field>
+      <Field label="Days"><input type="number" value={days} onChange={e=>setDays(e.target.value)} /></Field>
+      <Field label="Hotel per night"><input type="number" value={hotel} onChange={e=>setHotel(e.target.value)} /></Field>
+      <Field label="Food per day"><input type="number" value={food} onChange={e=>setFood(e.target.value)} /></Field>
+      <Field label="Flights per person"><input type="number" value={flight} onChange={e=>setFlight(e.target.value)} /></Field>
+      <Field label="Car per day"><input type="number" value={car} onChange={e=>setCar(e.target.value)} /></Field>
+      <Field label="Activities per day"><input type="number" value={activities} onChange={e=>setActivities(e.target.value)} /></Field>
+    </div>
+    <div className="totalBox">
+      <b>${Math.round(total).toLocaleString()}</b>
+      <span>Estimated total for two travelers</span>
+      <small>{selected?.title}</small>
+    </div>
+  </section>
+}
 
 createRoot(document.getElementById('root')).render(<App />);

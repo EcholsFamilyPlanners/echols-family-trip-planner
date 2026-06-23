@@ -3365,5 +3365,94 @@ export const seedDestinations = [
       "Day 7: Savannah full day. Historic squares, Bonaventure Cemetery, Tybee Island, seafood dinner, and optional ghost tour.",
       "Day 8: Savannah to Little Rock. Return drive home, with optional breaks in Macon, Birmingham, or Memphis depending on routing."
     ]
+  },
+  {
+    "id": "phoenix-scottsdale",
+    "title": "Phoenix & Scottsdale",
+    "region": "United States",
+    "subregion": "Southwest",
+    "budget": "Comfortable",
+    "status": "Idea",
+    "length": [
+      "3-4",
+      "5-7"
+    ],
+    "seasons": [
+      "Winter",
+      "Spring",
+      "Fall"
+    ],
+    "styles": [
+      "Desert",
+      "Food",
+      "Resort",
+      "Sports",
+      "Relaxing"
+    ],
+    "bestMonths": "November–April",
+    "idealDays": "4–6 days",
+    "hero": "Phoenix Scottsdale Arizona desert resort Camelback Mountain",
+    "summary": "A warm-weather desert escape with Scottsdale resorts, excellent restaurants, spring training, desert scenery, museums, golf, and easy day trips.",
+    "experiences": [
+      "Old Town Scottsdale",
+      "Desert Botanical Garden",
+      "Camelback Mountain viewpoints",
+      "Taliesin West",
+      "Heard Museum",
+      "Spring training baseball if in season",
+      "Scottsdale resort pool day",
+      "Sunset dinner in Paradise Valley"
+    ],
+    "detours": [
+      "Sedona",
+      "Tucson and Saguaro National Park",
+      "Tempe and Arizona State University",
+      "Mesa and Salt River",
+      "Apache Trail",
+      "Jerome"
+    ],
+    "sports": [
+      "Chase Field",
+      "Footprint Center",
+      "State Farm Stadium",
+      "Mountain America Stadium at Arizona State",
+      "Scottsdale Stadium",
+      "Salt River Fields",
+      "TPC Scottsdale"
+    ],
+    "photos": [
+      "Camelback Mountain",
+      "Desert Botanical Garden",
+      "Old Town Scottsdale",
+      "Papago Park Hole-in-the-Rock",
+      "Taliesin West",
+      "TPC Scottsdale",
+      "Tempe Town Lake"
+    ],
+    "hotels": [
+      "The Phoenician",
+      "Sanctuary Camelback Mountain",
+      "Andaz Scottsdale Resort & Bungalows",
+      "Mountain Shadows Resort",
+      "Hotel Valley Ho",
+      "Fairmont Scottsdale Princess"
+    ],
+    "restaurants": [
+      "FnB",
+      "Citizen Public House",
+      "The Mission Old Town",
+      "Pizzeria Bianco",
+      "Steak 44",
+      "Toca Madera Scottsdale",
+      "Hash Kitchen"
+    ],
+    "itinerary": [
+      "Day 1: Fly or drive to Phoenix, check into a Scottsdale resort, walk Old Town Scottsdale, and have dinner at The Mission or Citizen Public House.",
+      "Day 2: Visit Desert Botanical Garden, Papago Park, and the Heard Museum; finish with a sunset dinner in Paradise Valley or Scottsdale.",
+      "Day 3: Sports and desert day. Tour Chase Field or Footprint Center, visit Tempe/ASU, or attend spring training if in season; relax by the pool.",
+      "Day 4: Taliesin West, TPC Scottsdale, spa time, or a resort day; optional evening in Old Town Scottsdale.",
+      "Day 5: Optional Sedona day trip for red rock scenery and photography.",
+      "Day 6: Brunch, final desert photos, and return home."
+    ]
   }
 ];
