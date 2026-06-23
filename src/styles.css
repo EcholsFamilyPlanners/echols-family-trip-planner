@@ -10,3 +10,8 @@ ul,ol{line-height:1.75}a{color:var(--navy);font-weight:700}.photoGrid{display:gr
 @media(max-width:1000px){.metrics{grid-template-columns:repeat(2,1fr)}.split,.twoCol{grid-template-columns:1fr}.grid,.miniGrid{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr 1fr}.photoGrid{grid-template-columns:1fr 1fr}.venueGrid,.syncSteps{grid-template-columns:1fr 1fr}.topbar{flex-direction:column}nav{justify-content:flex-start}}
 @media(max-width:650px){main{padding:14px}.metrics,.grid,.miniGrid,.filters,.photoGrid,.venueGrid,.syncSteps,.noteGrid,.formGrid{grid-template-columns:1fr}.heroInner{padding:24px 16px 42px}.detailHero{min-height:360px}.tripCard{min-height:260px}}
 @media print{.hero,.actions,.heart,nav{display:none!important}main{padding:0}.panel{box-shadow:none;break-inside:avoid}.detailHero{border-radius:0;min-height:260px}a{color:black;text-decoration:none}}
+
+.authBanner{max-width:1260px;margin:0 auto 18px;background:#fff8e8;border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.authBanner.warning{background:#fff3f0}
+.authForm{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.authForm input{padding:11px;border:1px solid var(--line);border-radius:13px;background:white;min-width:260px}

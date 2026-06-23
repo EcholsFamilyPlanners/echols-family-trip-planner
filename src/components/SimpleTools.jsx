@@ -44,7 +44,16 @@ export function Journal({ destinations, tripData, openTrip }) {
 }
 
 export function SyncPlan() {
-  return <section className="panel"><h2>Shared Sync Plan</h2><p>This V2.1 app is ready for a future shared database. Right now it still saves locally so it works immediately. The next step is connecting Supabase so Anthony and Stephanie can share favorites, notes, visited trips, and journals across devices.</p><div className="syncSteps"><div><b>1</b><span>Create Supabase project</span></div><div><b>2</b><span>Add tables for trips, notes, favorites, and journals</span></div><div><b>3</b><span>Add login for Anthony and Stephanie</span></div><div><b>4</b><span>Replace localStorage with cloud sync</span></div></div></section>
+  return <section className="panel">
+    <h2>Shared Sync</h2>
+    <p>This V2.2 build connects to Supabase. Once your Netlify environment variables are set and you sign in, shared favorites, statuses, notes, journals, and custom trips sync across devices.</p>
+    <div className="syncSteps">
+      <div><b>1</b><span>Run the V2.2 SQL in Supabase</span></div>
+      <div><b>2</b><span>Add Supabase URL and anon key to Netlify</span></div>
+      <div><b>3</b><span>Sign in with magic link</span></div>
+      <div><b>4</b><span>Share the site with Stephanie</span></div>
+    </div>
+  </section>
 }
 
 function Field({ label, children }) { return <label className="field">{label}{children}</label> }

@@ -1,36 +1,37 @@
-# Anthony & Stephanie Travel Planner V2.1
+# Anthony & Stephanie Travel Planner V2.2 Supabase Sync
 
-This is the first long-term shared-planner build.
+This version adds Supabase-ready shared syncing.
 
-## What is included now
-- 47 trip ideas
-- Dashboard
-- Trip Library
-- Trip Finder
-- Cost Estimator
-- Stadium Tracker
-- Journal
-- Sync Plan page
-- Add Trip
-- Photo galleries
-- Notes and status tracking
-- Export/import data
+## What syncs after login
+- Favorites
+- Trip status
+- Ideas
+- Restaurant notes
+- Memories
+- Packing notes
+- Custom trips
 
-## Important
-This version still saves data locally so it works immediately on Netlify.
+## Required Supabase SQL
+Run this file in Supabase SQL Editor:
 
-The code is now organized so the next step can add a shared database.
+```text
+supabase/v2_2_shared_sync.sql
+```
 
-## Future shared sync plan
-Use Supabase for:
-- Login for Anthony and Stephanie
-- Shared notes
-- Shared favorites
-- Shared visited status
-- Shared custom trips
-- Shared trip journals
+## Required Netlify environment variables
+In Netlify:
 
-## Netlify settings
+Site configuration → Environment variables → Add variables
+
+```text
+VITE_SUPABASE_URL=your Supabase Project URL
+VITE_SUPABASE_ANON_KEY=your Supabase anon/public key
+```
+
+Then redeploy the site.
+
+## Netlify build settings
+
 Build command:
 
 ```bash
@@ -44,3 +45,6 @@ dist
 ```
 
 Base directory: leave blank.
+
+## Notes
+This app uses magic-link email sign in. Anyone who can sign in to your Supabase project and access the site can use the shared planner. For the next version, we can add stricter invite-only household membership.
