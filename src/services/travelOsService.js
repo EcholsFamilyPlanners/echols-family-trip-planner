@@ -156,8 +156,12 @@ export async function savePersonalTripPatch(tripId, patch, current = {}) {
     trip_id: tripId,
     favorite: !!next.favorite,
     want_to_visit: !!next.want_to_visit,
+    wish_list: !!next.wish_list,
+    wish_rank: next.wish_rank || null,
     personal_rating: next.personal_rating || null,
     personal_notes: next.personal_notes || '',
+    dream_reason: next.dream_reason || '',
+    must_do: next.must_do || '',
     updated_at: new Date().toISOString(),
   };
 

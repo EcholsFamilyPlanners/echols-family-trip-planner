@@ -10,3 +10,24 @@
 .checkGrid label{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:11px}
 .checklistPanel{min-height:240px}
 @media(max-width:650px){.checkGrid{grid-template-columns:1fr}}
+
+
+/* V3.2 Wish Lists */
+.wishListRows{display:grid;gap:14px}
+.wishRow{display:grid;grid-template-columns:64px 1fr auto;gap:14px;background:white;border:1px solid var(--line);border-radius:20px;padding:16px}
+.wishRank{width:48px;height:48px;border-radius:999px;background:var(--gold);display:grid;place-items:center;font-size:22px;font-weight:900;color:var(--navy)}
+.wishMain span{display:block;color:var(--muted);margin:4px 0 12px}
+.linkButton{border:0;background:none;color:var(--navy);font-size:20px;cursor:pointer;padding:0;text-align:left}
+.wishFields{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.wishFields label,.personalGrid label{font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:900;letter-spacing:.06em}
+.wishFields textarea{min-height:78px;margin-top:6px}
+.wishActions{display:flex;flex-direction:column;gap:8px}
+.wishAddGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.wishAddCard{display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px}
+.wishAddCard b,.wishAddCard span{display:block}
+.wishAddCard span{color:var(--muted);margin-top:3px}
+.blockToggle{display:block;margin-bottom:12px}
+.personalGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.personalGrid input{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:13px}
+@media(max-width:1000px){.wishRow{grid-template-columns:48px 1fr}.wishActions{grid-column:1 / -1;flex-direction:row}.wishFields,.wishAddGrid{grid-template-columns:1fr}}
+@media(max-width:650px){.wishRow{grid-template-columns:1fr}.wishRank{width:42px;height:42px}.wishActions{flex-direction:column}.personalGrid{grid-template-columns:1fr}}

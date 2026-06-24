@@ -81,3 +81,18 @@ Adds a richer trip detail page with tabs:
 
 New migration:
 - `supabase/migrations/003_trip_notebook_fields.sql`
+
+
+## V3.2 Personal Wish Lists
+
+Adds:
+- Wish Lists navigation section
+- Personal wish list per signed-in user
+- Personal trip notes
+- Why I want to go
+- Must-do list
+- Personal rank and rating
+- Wish-list checkbox on each trip page
+
+New migration:
+- `supabase/migrations/004_personal_wishlist_notes.sql`

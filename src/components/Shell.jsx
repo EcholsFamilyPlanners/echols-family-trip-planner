@@ -1,7 +1,7 @@
 
 export default function Shell({ view, setView, session, children }) {
   const nav = [
-    ['dashboard','Dashboard'], ['library','Trips'], ['finder','Trip Finder'], ['budget','Budget'],
+    ['dashboard','Dashboard'], ['library','Trips'], ['wishlist','Wish Lists'], ['finder','Trip Finder'], ['budget','Budget'],
     ['packing','Packing'], ['venues','Sports'], ['journal','Journal'], ['add','+ Add Trip']
   ];
   return (

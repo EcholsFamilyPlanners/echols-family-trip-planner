@@ -26,6 +26,7 @@ export default function TripDetail({ trip, shared={}, personal={}, updateShared,
           {['Idea','Considering','Top Pick','Bucket List','Planning','Booked','Visited'].map(x=><option key={x}>{x}</option>)}
         </select>
         <label className="toggle"><input type="checkbox" checked={favorite} onChange={e=>updatePersonal(trip.id,{favorite:e.target.checked})}/> My Favorite</label>
+      <label className="toggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> My Wish List</label>
         <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a>
         <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
       </div>
@@ -46,7 +47,8 @@ export default function TripDetail({ trip, shared={}, personal={}, updateShared,
         ['food','Food & Hotels'],
         ['sports','Sports'],
         ['packing','Packing'],
-        ['memories','Memories']
+        ['memories','Memories'],
+        ['personal','My Notes']
       ].map(([key,label]) => (
         <button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}>{label}</button>
       ))}
@@ -59,6 +61,7 @@ export default function TripDetail({ trip, shared={}, personal={}, updateShared,
     {tab === 'sports' && <Sports trip={trip} />}
     {tab === 'packing' && <PackingNotes trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'personal' && <PersonalNotes trip={trip} personal={personal} updatePersonal={updatePersonal} />}
   </>
 }
 
@@ -141,6 +144,32 @@ function Memories({ trip, shared, updateShared }) {
     <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>
     <section className="panel"><h2>What Worked</h2><textarea value={shared.what_worked || ''} onChange={e=>updateShared(trip.id,{what_worked:e.target.value})} placeholder="Best decisions, favorite places, what to repeat..." /></section>
     <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
+  </section>
+}
+
+
+function PersonalNotes({ trip, personal, updatePersonal }) {
+  return <section className="twoCol">
+    <section className="panel">
+      <h2>My Wish List Notes</h2>
+      <label className="toggle blockToggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> Add this trip to my personal wish list</label>
+      <textarea value={personal.dream_reason || ''} onChange={e=>updatePersonal(trip.id,{dream_reason:e.target.value})} placeholder="Why do I want to take this trip?" />
+    </section>
+    <section className="panel">
+      <h2>My Must-Do List</h2>
+      <textarea value={personal.must_do || ''} onChange={e=>updatePersonal(trip.id,{must_do:e.target.value})} placeholder="Personal must-do items, restaurants, venues, photos..." />
+    </section>
+    <section className="panel">
+      <h2>My Personal Notes</h2>
+      <textarea value={personal.personal_notes || ''} onChange={e=>updatePersonal(trip.id,{personal_notes:e.target.value})} placeholder="Notes just for my planning preferences..." />
+    </section>
+    <section className="panel">
+      <h2>My Rating / Rank</h2>
+      <div className="personalGrid">
+        <label>Wish Rank<input type="number" value={personal.wish_rank || ''} onChange={e=>updatePersonal(trip.id,{wish_rank:Number(e.target.value) || null})} /></label>
+        <label>Personal Rating<input type="number" min="1" max="5" value={personal.personal_rating || ''} onChange={e=>updatePersonal(trip.id,{personal_rating:Number(e.target.value) || null})} /></label>
+      </div>
+    </section>
   </section>
 }
 
