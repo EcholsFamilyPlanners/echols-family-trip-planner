@@ -1,34 +1,22 @@
 
-export default function Shell({ view, setView, children }) {
+export default function Shell({ view, setView, session, children }) {
   const nav = [
-    ['dashboard', 'Dashboard'],
-    ['library', 'Trip Library'],
-    ['finder', 'Trip Finder'],
-    ['budget', 'Budget'],
-    ['stadiums', 'Stadiums'],
-    ['journal', 'Journal'],
-    ['sync', 'Sync Plan'],
-    ['add', '+ Add Trip'],
+    ['dashboard','Dashboard'], ['library','Trips'], ['finder','Trip Finder'], ['budget','Budget'],
+    ['packing','Packing'], ['venues','Sports'], ['journal','Journal'], ['add','+ Add Trip']
   ];
-
   return (
     <>
       <header className="hero">
         <div className="heroInner">
           <div className="topbar">
-            <div className="brand">Anthony & Stephanie</div>
-            <nav>
-              {nav.map(([key, label]) => (
-                <button key={key} className={view === key ? 'active' : ''} onClick={() => setView(key)}>
-                  {label}
-                </button>
-              ))}
-            </nav>
+            <div className="brand">Anthony & Stephanie Travel OS</div>
+            <nav>{nav.map(([k,l]) => <button key={k} className={view===k?'active':''} onClick={()=>setView(k)}>{l}</button>)}</nav>
           </div>
           <div className="heroCopy">
-            <p className="eyebrow">Travel Planner OS · V2.1</p>
-            <h1>A shared travel command center.</h1>
-            <p>Built for long-term planning: destinations, favorites, visited trips, notes, budgets, stadiums, journals, and future shared syncing between you and Stephanie.</p>
+            <p className="eyebrow">Version 3.0 · Shared Travel Platform</p>
+            <h1>Plan it. Track it. Remember it.</h1>
+            <p>A long-term travel operating system for trips, packing, stadiums, budgets, shared notes, and memories.</p>
+            <p className="signinState">{session?.user?.email ? `Signed in as ${session.user.email}` : 'Local mode or not signed in'}</p>
           </div>
         </div>
       </header>

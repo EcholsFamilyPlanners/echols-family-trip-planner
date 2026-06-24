@@ -1,7 +1,7 @@
 {
-  "name": "anthony-stephanie-travel-planner-v2-2",
+  "name": "anthony-stephanie-travel-os-v3",
   "private": true,
-  "version": "2.2.0",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "latest",
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest",
-    "@supabase/supabase-js": "latest"
+    "lucide-react": "latest"
   },
   "devDependencies": {}
 }

@@ -1,34 +1,36 @@
-# Anthony & Stephanie Travel Planner V2.2 Supabase Sync
+# Anthony & Stephanie Travel OS V3.0
 
-This version adds Supabase-ready shared syncing.
+This is the new long-term foundation for the shared travel platform.
 
-## What syncs after login
-- Favorites
-- Trip status
-- Ideas
-- Restaurant notes
-- Memories
-- Packing notes
-- Custom trips
+## Included
+- 47 trip ideas
+- Shared trip status and notes
+- Personal favorites
+- Trip Library
+- Trip Finder
+- Budget estimator
+- Packing Manager with templates
+- Sports Venue Tracker with visited tracking
+- Travel Journal
+- Add custom trips
+- Supabase-ready shared database structure
+- Netlify-ready deployment
 
-## Required Supabase SQL
-Run this file in Supabase SQL Editor:
+## Supabase setup
+
+Run both migration files in Supabase SQL Editor, in this order:
+
+1. `supabase/migrations/001_travel_os_core.sql`
+2. `supabase/migrations/002_seed_packing_templates.sql`
+
+## Netlify environment variables
+
+Add these to Netlify:
 
 ```text
-supabase/v2_2_shared_sync.sql
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
 ```
-
-## Required Netlify environment variables
-In Netlify:
-
-Site configuration → Environment variables → Add variables
-
-```text
-VITE_SUPABASE_URL=your Supabase Project URL
-VITE_SUPABASE_ANON_KEY=your Supabase anon/public key
-```
-
-Then redeploy the site.
 
 ## Netlify build settings
 
@@ -46,5 +48,21 @@ dist
 
 Base directory: leave blank.
 
-## Notes
-This app uses magic-link email sign in. Anyone who can sign in to your Supabase project and access the site can use the shared planner. For the next version, we can add stricter invite-only household membership.
+## Important
+
+V3 separates shared data and personal data:
+
+Shared:
+- trip status
+- shared notes
+- memories
+- custom trips
+- packing
+- sports venue tracker
+
+Personal:
+- favorites
+- personal ratings
+- personal notes
+
+V3.1 should tighten household membership policies after both Anthony and Stephanie are signed in.
