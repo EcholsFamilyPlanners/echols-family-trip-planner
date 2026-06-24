@@ -43,3 +43,25 @@
 .personTripRow small,.planningRow small{color:var(--ink);margin-top:7px;line-height:1.35}
 .planningRows{display:grid;gap:10px}
 @media(max-width:900px){.couplesGrid{grid-template-columns:1fr}}
+
+
+/* V3.4 Trip Decision Tools */
+.decisionControls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.toggleRow{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-weight:700}
+.comparePicker{display:flex;gap:10px;margin-bottom:14px}
+.comparePicker select{flex:1;padding:12px;border:1px solid var(--line);border-radius:14px;background:white}
+.comparisonTableWrap{overflow:auto;border:1px solid var(--line);border-radius:18px}
+.comparisonTable{width:100%;border-collapse:collapse;background:white}
+.comparisonTable th,.comparisonTable td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:12px;vertical-align:top;min-width:180px;white-space:pre-line}
+.comparisonTable th:first-child,.comparisonTable td:first-child{min-width:130px;background:var(--paper)}
+.tinyRemove{float:right;border:0;background:#eef3f7;border-radius:999px;width:24px;height:24px;cursor:pointer}
+.scoreMeter{min-width:120px}
+.scoreMeter b{display:block;color:var(--navy);font-size:22px}
+.scoreMeter div{height:10px;background:#eef3f7;border-radius:999px;overflow:hidden}
+.scoreMeter span{display:block;height:100%;background:var(--gold);border-radius:999px}
+.recommendationRows{display:grid;gap:12px}
+.recommendationRow{display:grid;grid-template-columns:50px 1fr 140px;gap:14px;align-items:center;background:white;border:1px solid var(--line);border-radius:18px;padding:14px}
+.rankBadge{width:42px;height:42px;border-radius:999px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:20px}
+.recommendationRow span,.recommendationRow small{display:block;color:var(--muted);margin-top:4px}
+@media(max-width:900px){.decisionControls{grid-template-columns:1fr 1fr}.recommendationRow{grid-template-columns:42px 1fr}.recommendationRow .scoreMeter{grid-column:1 / -1}}
+@media(max-width:650px){.decisionControls{grid-template-columns:1fr}.comparePicker{flex-direction:column}}

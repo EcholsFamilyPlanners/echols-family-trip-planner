@@ -1,0 +1,3 @@
+-- Travel OS V3.4 Trip Decision Tools
+-- No schema changes required for this version.
+-- This file exists to keep migrations versioned.

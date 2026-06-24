@@ -10,6 +10,7 @@ import TripDetail from './components/TripDetail';
 import AddTrip from './components/AddTrip';
 import WishLists from './components/WishLists';
 import CouplesPlanner from './components/CouplesPlanner';
+import TripCompare from './components/TripCompare';
 import { TripFinder, Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
 import { getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox, saveSharedTripPatch, savePersonalTripPatch, addCustomTrip as saveCustomTrip, ensureHouseholdMember } from './services/travelOsService';
 import './styles.css';
@@ -35,7 +36,8 @@ function App(){
     <AuthPanel session={session}/>
     {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox}/>} 
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
-    {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
+    {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>} 
+    {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash}/>}
     {view==='wishlist'&&<WishLists destinations={destinations} personalTripData={personalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} updatePersonal={updatePersonal}/>} 
     {view==='finder'&&<TripFinder destinations={destinations} openTrip={openTrip}/>}

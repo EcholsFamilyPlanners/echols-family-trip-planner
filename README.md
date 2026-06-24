@@ -110,3 +110,18 @@ Focus:
 
 New migration:
 - `supabase/migrations/005_couples_planner_functionality.sql`
+
+
+## V3.4 Stage 2 — Trip Decision Tools
+
+Adds:
+- Compare page
+- Side-by-side trip comparison
+- Best-match ranking based on days, season, budget, style, and sports
+- Uses shared planning status
+- Uses personal wish list/favorite data
+- Shows trips both Anthony and Stephanie want
+
+Migration:
+- `supabase/migrations/006_trip_decision_tools.sql`
+- No schema changes required.
