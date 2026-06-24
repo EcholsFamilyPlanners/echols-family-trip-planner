@@ -38,6 +38,24 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+export async function ensureHouseholdMember(session) {
+  if (!isSupabaseConfigured || !session?.user?.id) return;
+
+  const email = session.user.email || '';
+  const displayName = email.toLowerCase().includes('steph') ? 'Stephanie' : email.toLowerCase().includes('acechols') ? 'Anthony' : email.split('@')[0];
+
+  const { error } = await supabase.from('household_members').upsert({
+    household_id: HOUSEHOLD_ID,
+    user_id: session.user.id,
+    email,
+    display_name: displayName,
+    nickname: displayName,
+    role: 'member'
+  }, { onConflict: 'household_id,user_id' });
+
+  if (error) console.error(error);
+}
+
 export function loadIdeaInbox() {
   return localStorage.getItem(LOCAL.inbox) || '';
 }
@@ -51,6 +69,8 @@ export async function loadAllData(seedDestinations = []) {
     return {
       sharedTripData: getLocal(LOCAL.shared, {}),
       personalTripData: getLocal(LOCAL.personal, {}),
+      allPersonalTripData: [],
+      householdMembers: [],
       customTrips: getLocal(LOCAL.custom, []),
       packingTemplates: getLocal(LOCAL.packingTemplates, defaultTemplates()),
       packingItems: getLocal(LOCAL.packingItems, defaultPackingItems()),
@@ -65,6 +85,7 @@ export async function loadAllData(seedDestinations = []) {
     templatesRes,
     packingRes,
     venuesRes,
+    membersRes,
   ] = await Promise.all([
     supabase.from('shared_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
     supabase.from('personal_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
@@ -72,9 +93,10 @@ export async function loadAllData(seedDestinations = []) {
     supabase.from('packing_templates').select('*').eq('household_id', HOUSEHOLD_ID).order('created_at'),
     supabase.from('packing_items').select('*').eq('household_id', HOUSEHOLD_ID).order('sort_order'),
     supabase.from('sports_venues').select('*').eq('household_id', HOUSEHOLD_ID).order('name'),
+    supabase.from('household_members').select('*').eq('household_id', HOUSEHOLD_ID).order('created_at'),
   ]);
 
-  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes]) {
+  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes, membersRes]) {
     if (res.error) console.error(res.error);
   }
 
@@ -82,8 +104,9 @@ export async function loadAllData(seedDestinations = []) {
   (sharedRes.data || []).forEach(row => { sharedTripData[row.trip_id] = row; });
 
   const session = await getSession();
+  const allPersonalTripData = personalRes.data || [];
   const personalTripData = {};
-  (personalRes.data || [])
+  allPersonalTripData
     .filter(row => !session?.user?.id || row.user_id === session.user.id)
     .forEach(row => { personalTripData[row.trip_id] = row; });
 
@@ -93,6 +116,8 @@ export async function loadAllData(seedDestinations = []) {
   return {
     sharedTripData,
     personalTripData,
+    allPersonalTripData,
+    householdMembers: membersRes.data || [],
     customTrips: (customRes.data || []).map(row => row.trip),
     packingTemplates: templatesRes.data || defaultTemplates(),
     packingItems: packingRes.data || defaultPackingItems(),

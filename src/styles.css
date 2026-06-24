@@ -31,3 +31,15 @@
 .personalGrid input{display:block;width:100%;margin-top:6px;padding:11px;border:1px solid var(--line);border-radius:13px}
 @media(max-width:1000px){.wishRow{grid-template-columns:48px 1fr}.wishActions{grid-column:1 / -1;flex-direction:row}.wishFields,.wishAddGrid{grid-template-columns:1fr}}
 @media(max-width:650px){.wishRow{grid-template-columns:1fr}.wishRank{width:42px;height:42px}.wishActions{flex-direction:column}.personalGrid{grid-template-columns:1fr}}
+
+
+/* V3.3 Core Couples Functionality */
+.couplesGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.personPanel{min-height:320px}
+.personTripList{display:grid;gap:10px}
+.personTripRow,.planningRow{border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:14px;text-align:left;cursor:pointer}
+.personTripRow b,.personTripRow span,.personTripRow small,.planningRow b,.planningRow span,.planningRow small{display:block}
+.personTripRow span,.planningRow span{color:var(--muted);margin-top:4px}
+.personTripRow small,.planningRow small{color:var(--ink);margin-top:7px;line-height:1.35}
+.planningRows{display:grid;gap:10px}
+@media(max-width:900px){.couplesGrid{grid-template-columns:1fr}}

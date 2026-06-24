@@ -96,3 +96,17 @@ Adds:
 
 New migration:
 - `supabase/migrations/004_personal_wishlist_notes.sql`
+
+
+## V3.3 Core Functionality
+
+Focus:
+- Together page
+- Anthony and Stephanie wish lists side-by-side
+- Trips both people want
+- Shared planning queue
+- Household member registration on sign-in
+- Less decoration, more useful planning behavior
+
+New migration:
+- `supabase/migrations/005_couples_planner_functionality.sql`
