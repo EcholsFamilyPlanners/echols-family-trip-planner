@@ -286,6 +286,42 @@ function seedVenues(destinations) {
   })));
 }
 
+
+
+export async function saveHouseholdMember(member) {
+  if (!isSupabaseConfigured) return;
+
+  const payload = {
+    id: member.id,
+    household_id: HOUSEHOLD_ID,
+    user_id: member.user_id,
+    email: member.email || '',
+    display_name: member.display_name || member.nickname || member.email || 'Traveler',
+    nickname: member.nickname || member.display_name || 'Traveler',
+    role: member.role || 'member',
+    is_active: member.is_active !== false
+  };
+
+  const { error } = await supabase.from('household_members').upsert(payload);
+  if (error) throw error;
+}
+
+export async function createHouseholdMemberByEmail({ email, display_name, nickname }) {
+  if (!isSupabaseConfigured) return;
+
+  const { error } = await supabase.from('household_members').insert({
+    household_id: HOUSEHOLD_ID,
+    email,
+    display_name: display_name || nickname || email,
+    nickname: nickname || display_name || email,
+    role: 'member',
+    is_active: true
+  });
+
+  if (error) throw error;
+}
+
+
 function defaultTemplates() {
   return [
     { id:'local-flight', name:'Weekend Flight', travel_type:'air' },

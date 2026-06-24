@@ -65,3 +65,14 @@
 .recommendationRow span,.recommendationRow small{display:block;color:var(--muted);margin-top:4px}
 @media(max-width:900px){.decisionControls{grid-template-columns:1fr 1fr}.recommendationRow{grid-template-columns:42px 1fr}.recommendationRow .scoreMeter{grid-column:1 / -1}}
 @media(max-width:650px){.decisionControls{grid-template-columns:1fr}.comparePicker{flex-direction:column}}
+
+
+/* V4.0 People & Household */
+.peopleGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.personEditPanel p{margin:8px 0;color:var(--muted)}
+.peopleAdd{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px}
+.peopleAdd input,.peopleForm input{padding:11px;border:1px solid var(--line);border-radius:13px;background:white;width:100%}
+.peopleForm{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.peopleForm label{font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:900;letter-spacing:.06em}
+.peopleForm input{display:block;margin-top:6px}
+@media(max-width:900px){.peopleGrid,.peopleAdd,.peopleForm{grid-template-columns:1fr}}

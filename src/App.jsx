@@ -11,6 +11,7 @@ import AddTrip from './components/AddTrip';
 import WishLists from './components/WishLists';
 import CouplesPlanner from './components/CouplesPlanner';
 import TripCompare from './components/TripCompare';
+import People from './components/People';
 import { TripFinder, Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
 import { getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox, saveSharedTripPatch, savePersonalTripPatch, addCustomTrip as saveCustomTrip, ensureHouseholdMember } from './services/travelOsService';
 import './styles.css';
@@ -35,6 +36,7 @@ function App(){
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
     {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox}/>} 
+    {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh}/>} 
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>} 
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}

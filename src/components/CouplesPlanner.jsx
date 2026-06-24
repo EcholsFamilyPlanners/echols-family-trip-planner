@@ -97,14 +97,32 @@ function PersonPanel({ member, trips, allPersonalTripData, openTrip }) {
 }
 
 function normalizeMembers(householdMembers, personalRows) {
-  if (householdMembers?.length) return householdMembers;
+  const real = (householdMembers || []).filter(m => m.is_active !== false);
+  const hasAnthony = real.some(m => String(m.display_name || m.nickname || m.email || '').toLowerCase().includes('anthony') || String(m.email || '').toLowerCase().includes('acechols'));
+  const hasStephanie = real.some(m => String(m.display_name || m.nickname || m.email || '').toLowerCase().includes('steph'));
 
-  const ids = [...new Set((personalRows || []).map(x => x.user_id).filter(Boolean))];
-  return ids.map((id, index) => ({
-    user_id: id,
-    display_name: index === 0 ? 'Anthony' : index === 1 ? 'Stephanie' : `Traveler ${index + 1}`,
-    email: ''
-  }));
+  const result = [...real];
+
+  if (!hasAnthony) {
+    const anthonyRow = (personalRows || [])[0];
+    result.push({
+      user_id: anthonyRow?.user_id || 'anthony-placeholder',
+      display_name: 'Anthony',
+      email: anthonyRow?.email || '',
+      placeholder: true
+    });
+  }
+
+  if (!hasStephanie) {
+    result.push({
+      user_id: 'stephanie-placeholder',
+      display_name: 'Stephanie',
+      email: '',
+      placeholder: true
+    });
+  }
+
+  return result.slice(0, 4);
 }
 
 function getWishTrips(destinations, rows, userId) {

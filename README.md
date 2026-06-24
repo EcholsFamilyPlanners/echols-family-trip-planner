@@ -125,3 +125,16 @@ Adds:
 Migration:
 - `supabase/migrations/006_trip_decision_tools.sql`
 - No schema changes required.
+
+
+## V4.0 People & Household Foundation
+
+Adds:
+- People page
+- Edit household member names/nicknames
+- Add Stephanie/household member placeholder
+- More reliable Together page member display
+- Household member migration from existing Supabase users
+
+Migration:
+- `supabase/migrations/007_people_household_foundation.sql`
