@@ -66,3 +66,18 @@ Personal:
 - personal notes
 
 V3.1 should tighten household membership policies after both Anthony and Stephanie are signed in.
+
+
+## V3.1 Trip Notebook Update
+
+Adds a richer trip detail page with tabs:
+- Overview
+- Plan
+- Itinerary
+- Food & Hotels
+- Sports
+- Packing
+- Memories
+
+New migration:
+- `supabase/migrations/003_trip_notebook_fields.sql`

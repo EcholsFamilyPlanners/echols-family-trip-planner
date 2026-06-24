@@ -1,31 +1,168 @@
 
+import { useState } from 'react';
 import { MapPin, Printer } from 'lucide-react';
 import { img, mapUrl, money } from '../utils/helpers';
 
 export default function TripDetail({ trip, shared={}, personal={}, updateShared, updatePersonal, goBack }) {
+  const [tab, setTab] = useState('overview');
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
+
   return <>
     <button className="btn secondary" onClick={goBack}>← Back</button>
-    <section className="detailHero" style={{backgroundImage:`url("${img(trip.hero || trip.title)}")`}}><div><p className="eyebrow">{trip.region} · {trip.subregion}</p><h1>{trip.title}</h1><p>{trip.summary}</p></div></section>
-    <section className="panel"><div className="detailActions">
-      <select value={status} onChange={e=>updateShared(trip.id,{status:e.target.value})}>{['Idea','Considering','Top Pick','Bucket List','Planning','Booked','Visited'].map(x=><option key={x}>{x}</option>)}</select>
-      <label className="toggle"><input type="checkbox" checked={favorite} onChange={e=>updatePersonal(trip.id,{favorite:e.target.checked})}/> My Favorite</label>
-      <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a><button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
-    </div></section>
-    <section className="metrics"><div className="metric"><b>{trip.idealDays}</b><span>Ideal Days</span></div><div className="metric"><b>{trip.bestMonths}</b><span>Best Months</span></div><div className="metric"><b>{trip.budget}</b><span>Budget</span></div><div className="metric"><b>{money(estimated)}</b><span>Rough Estimate</span></div></section>
-    <section className="twoCol"><List title="Top Experiences" items={trip.experiences}/><List title="Detours" items={trip.detours} linked/><List title="Sports & Venues" items={trip.sports} linked/><List title="Photo Stops" items={trip.photos} linked/><List title="Hotels" items={trip.hotels} linked/><List title="Restaurants" items={trip.restaurants} linked/></section>
-    <section className="panel"><h2>Photo Gallery</h2><div className="photoGrid">{[trip.hero,...(trip.photos||[])].slice(0,8).map(p=><a key={p} className="photo" href={mapUrl(p)} target="_blank" style={{backgroundImage:`url("${img(p)}")`}}><span>{p}</span></a>)}</div></section>
-    <section className="panel"><h2>Itinerary</h2><ol>{trip.itinerary?.map((x,i)=><li key={i}><b>Day {i+1}:</b> {x.replace(/^Day \d+:\s*/,'')}</li>)}</ol></section>
-    <section className="panel"><h2>Shared Notes</h2><div className="noteGrid">
-      <Note label="Ideas" value={shared.ideas||''} onChange={v=>updateShared(trip.id,{ideas:v})}/>
-      <Note label="Restaurants" value={shared.restaurant_notes||''} onChange={v=>updateShared(trip.id,{restaurant_notes:v})}/>
-      <Note label="Memories" value={shared.memories||''} onChange={v=>updateShared(trip.id,{memories:v})}/>
-      <Note label="Packing" value={shared.packing||''} onChange={v=>updateShared(trip.id,{packing:v})}/>
-    </div></section>
+
+    <section className="detailHero" style={{backgroundImage:`url("${img(trip.hero || trip.title)}")`}}>
+      <div>
+        <p className="eyebrow">{trip.region} · {trip.subregion}</p>
+        <h1>{trip.title}</h1>
+        <p>{trip.summary}</p>
+      </div>
+    </section>
+
+    <section className="panel">
+      <div className="detailActions">
+        <select value={status} onChange={e=>updateShared(trip.id,{status:e.target.value})}>
+          {['Idea','Considering','Top Pick','Bucket List','Planning','Booked','Visited'].map(x=><option key={x}>{x}</option>)}
+        </select>
+        <label className="toggle"><input type="checkbox" checked={favorite} onChange={e=>updatePersonal(trip.id,{favorite:e.target.checked})}/> My Favorite</label>
+        <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a>
+        <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
+      </div>
+    </section>
+
+    <section className="metrics">
+      <div className="metric"><b>{trip.idealDays}</b><span>Ideal Days</span></div>
+      <div className="metric"><b>{trip.bestMonths}</b><span>Best Months</span></div>
+      <div className="metric"><b>{trip.budget}</b><span>Budget</span></div>
+      <div className="metric"><b>{money(estimated)}</b><span>Rough Estimate</span></div>
+    </section>
+
+    <section className="panel notebookTabs">
+      {[
+        ['overview','Overview'],
+        ['plan','Plan'],
+        ['itinerary','Itinerary'],
+        ['food','Food & Hotels'],
+        ['sports','Sports'],
+        ['packing','Packing'],
+        ['memories','Memories']
+      ].map(([key,label]) => (
+        <button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}>{label}</button>
+      ))}
+    </section>
+
+    {tab === 'overview' && <Overview trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'plan' && <Planning trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'itinerary' && <Itinerary trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'food' && <FoodHotels trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'sports' && <Sports trip={trip} />}
+    {tab === 'packing' && <PackingNotes trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} />}
   </>
 }
-function estimate(trip){const days=parseInt(String(trip.idealDays).match(/\d+/)?.[0]||5,10);const hotel=trip.budget==='Bucket List'?450:trip.budget==='Premium'?325:225;const food=trip.budget==='Bucket List'?220:trip.budget==='Premium'?175:130;const travel=trip.region==='United States'?700:trip.region==='Bucket List'?2200:1400;return (hotel+food+75)*days+travel}
-function List({title,items=[],linked}){return <section className="panel"><h2>{title}</h2><ul>{items.map(x=><li key={x}>{linked?<a href={mapUrl(x)} target="_blank">{x}</a>:x}</li>)}</ul></section>}
-function Note({label,value,onChange}){return <label><b>{label}</b><textarea value={value} onChange={e=>onChange(e.target.value)}/></label>}
+
+function Overview({ trip, shared, updateShared }) {
+  return <>
+    <section className="twoCol">
+      <List title="Top Experiences" items={trip.experiences}/>
+      <List title="Worth the Detour" items={trip.detours} linked/>
+      <List title="Photo Stops" items={trip.photos} linked/>
+      <List title="Map Ideas" items={[trip.title, ...(trip.detours || []).slice(0,3), ...(trip.photos || []).slice(0,3)]} linked/>
+    </section>
+    <section className="panel">
+      <h2>Shared Overview Notes</h2>
+      <textarea value={shared.shared_notes || ''} onChange={e=>updateShared(trip.id,{shared_notes:e.target.value})} placeholder="Why this trip matters, best timing, overall plan..." />
+    </section>
+    <PhotoGallery trip={trip}/>
+  </>
+}
+
+function Planning({ trip, shared, updateShared }) {
+  return <section className="twoCol">
+    <section className="panel"><h2>Budget Notes</h2><textarea value={shared.budget_notes || ''} onChange={e=>updateShared(trip.id,{budget_notes:e.target.value})} placeholder="Flights, hotel budget, rental car, food, attractions..." /></section>
+    <section className="panel"><h2>Flight Notes</h2><textarea value={shared.flight_notes || ''} onChange={e=>updateShared(trip.id,{flight_notes:e.target.value})} placeholder="Airports, routes, flight times, airline notes..." /></section>
+    <section className="panel"><h2>Reservations</h2><textarea value={shared.reservation_notes || ''} onChange={e=>updateShared(trip.id,{reservation_notes:e.target.value})} placeholder="Confirmation numbers, dates, booked items..." /></section>
+    <section className="panel"><h2>Documents</h2><textarea value={shared.document_notes || ''} onChange={e=>updateShared(trip.id,{document_notes:e.target.value})} placeholder="Tickets, passes, links, reservation details..." /></section>
+    <section className="panel checklistPanel"><h2>Planning Checklist</h2><Checklist items={['Flights researched','Hotel shortlist saved','Restaurants researched','Sports venues checked','Maps saved','Packing started','Budget reviewed','Printable itinerary ready']} /></section>
+    <section className="panel"><h2>Map Notes</h2><textarea value={shared.map_notes || ''} onChange={e=>updateShared(trip.id,{map_notes:e.target.value})} placeholder="Neighborhoods, scenic routes, parking, walking areas..." /></section>
+  </section>
+}
+
+function Itinerary({ trip, shared, updateShared }) {
+  return <>
+    <section className="panel">
+      <h2>Sample Itinerary</h2>
+      <ol>{trip.itinerary?.map((x,i)=><li key={i}><b>Day {i+1}:</b> {x.replace(/^Day \d+:\s*/,'')}</li>)}</ol>
+    </section>
+    <section className="panel">
+      <h2>Custom Itinerary Notes</h2>
+      <textarea value={shared.itinerary_notes || ''} onChange={e=>updateShared(trip.id,{itinerary_notes:e.target.value})} placeholder="Build your actual day-by-day plan here..." />
+    </section>
+  </>
+}
+
+function FoodHotels({ trip, shared, updateShared }) {
+  return <section className="twoCol">
+    <List title="Hotels" items={trip.hotels} linked/>
+    <List title="Restaurants" items={trip.restaurants} linked/>
+    <section className="panel"><h2>Hotel Notes</h2><textarea value={shared.hotel_notes || ''} onChange={e=>updateShared(trip.id,{hotel_notes:e.target.value})} placeholder="Hotel shortlist, rates, neighborhoods, pros/cons..." /></section>
+    <section className="panel"><h2>Restaurant Notes</h2><textarea value={shared.restaurant_notes || ''} onChange={e=>updateShared(trip.id,{restaurant_notes:e.target.value})} placeholder="Restaurants to reserve, casual meals, coffee, special dinners..." /></section>
+  </section>
+}
+
+function Sports({ trip }) {
+  return <section className="twoCol">
+    <List title="Sports & Iconic Venues" items={trip.sports} linked/>
+    <section className="panel">
+      <h2>Sports Nearby</h2>
+      <p>Use the main <b>Sports</b> tracker to add custom venues and mark them visited separately.</p>
+      <ul>{trip.sports?.map(v=><li key={v}><a href={mapUrl(v)} target="_blank">{v}</a></li>)}</ul>
+    </section>
+  </section>
+}
+
+function PackingNotes({ trip, shared, updateShared }) {
+  return <section className="twoCol">
+    <section className="panel">
+      <h2>Trip Packing Notes</h2>
+      <textarea value={shared.packing || ''} onChange={e=>updateShared(trip.id,{packing:e.target.value})} placeholder="Trip-specific packing notes..." />
+    </section>
+    <section className="panel">
+      <h2>Packing Manager</h2>
+      <p>Use the main <b>Packing</b> page for reusable templates like Weekend Flight, Road Trip, Europe, and Golf Weekend.</p>
+    </section>
+  </section>
+}
+
+function Memories({ trip, shared, updateShared }) {
+  return <section className="twoCol">
+    <section className="panel"><h2>Memories</h2><textarea value={shared.memories || ''} onChange={e=>updateShared(trip.id,{memories:e.target.value})} placeholder="Favorite moments, meals, photos, stories..." /></section>
+    <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>
+    <section className="panel"><h2>What Worked</h2><textarea value={shared.what_worked || ''} onChange={e=>updateShared(trip.id,{what_worked:e.target.value})} placeholder="Best decisions, favorite places, what to repeat..." /></section>
+    <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
+  </section>
+}
+
+function PhotoGallery({ trip }) {
+  return <section className="panel">
+    <h2>Photo Gallery</h2>
+    <div className="photoGrid">{[trip.hero,...(trip.photos||[])].slice(0,8).map(p=><a key={p} className="photo" href={mapUrl(p)} target="_blank" style={{backgroundImage:`url("${img(p)}")`}}><span>{p}</span></a>)}</div>
+  </section>
+}
+
+function Checklist({ items }) {
+  return <div className="checkGrid">{items.map(x => <label key={x}><input type="checkbox" /> {x}</label>)}</div>
+}
+
+function List({title,items=[],linked}) {
+  return <section className="panel"><h2>{title}</h2><ul>{items.map(x=><li key={x}>{linked?<a href={mapUrl(x)} target="_blank">{x}</a>:x}</li>)}</ul></section>
+}
+
+function estimate(trip){
+  const days=parseInt(String(trip.idealDays).match(/\d+/)?.[0]||5,10);
+  const hotel=trip.budget==='Bucket List'?450:trip.budget==='Premium'?325:225;
+  const food=trip.budget==='Bucket List'?220:trip.budget==='Premium'?175:130;
+  const travel=trip.region==='United States'?700:trip.region==='Bucket List'?2200:1400;
+  return (hotel+food+75)*days+travel;
+}
