@@ -12,7 +12,8 @@ import WishLists from './components/WishLists';
 import CouplesPlanner from './components/CouplesPlanner';
 import TripCompare from './components/TripCompare';
 import People from './components/People';
-import { TripFinder, Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
+import DecisionEngine from './components/DecisionEngine';
+import { Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
   saveSharedTripPatch, savePersonalTripPatch, saveTripVote, saveTogetherNotes,
@@ -119,7 +120,7 @@ function App(){
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash}/>}
     {view==='wishlist'&&<WishLists destinations={destinations} personalTripData={personalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} updatePersonal={updatePersonal}/>}
-    {view==='finder'&&<TripFinder destinations={destinations} openTrip={openTrip}/>}
+    {view==='finder'&&<DecisionEngine destinations={destinations} myVotes={myVotes} allVotes={allVotes} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='budget'&&<Budget/>}
     {view==='packing'&&<PackingManager templates={packingTemplates} items={packingItems} refresh={refresh}/>}
     {view==='venues'&&<SportsTracker venues={sportsVenues} refresh={refresh}/>}
