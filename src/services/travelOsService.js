@@ -505,7 +505,13 @@ export async function saveTripBudgetTarget(tripId, target) {
 
 export async function saveBudgetItem(item) {
   if (!isSupabaseConfigured) return;
-  const payload = { ...item, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };
+  const payload = {
+    ...item,
+    household_id: HOUSEHOLD_ID,
+    estimated: Number(item.estimated) || 0,
+    actual: (item.actual === '' || item.actual === null || item.actual === undefined) ? null : Number(item.actual),
+    updated_at: new Date().toISOString(),
+  };
   if (item.id) {
     const { error } = await supabase.from('trip_budget_items').update(payload).eq('id', item.id);
     if (error) throw error;
