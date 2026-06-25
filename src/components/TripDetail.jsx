@@ -6,6 +6,7 @@ import HotelShortlist from './HotelShortlist';
 import TripBudget from './TripBudget';
 import TripReservations from './TripReservations';
 import TripPhotos from './TripPhotos';
+import TripJournal from './TripJournal';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -14,7 +15,7 @@ const VOTES = [
   { value: 'pass',  label: '👋 Pass' },
 ];
 
-export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack }) {
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState(null);
@@ -98,7 +99,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
     {tab === 'food' && <FoodHotels trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'sports' && <Sports trip={trip} />}
     {tab === 'packing' && <PackingNotes trip={trip} shared={shared} updateShared={updateShared} />}
-    {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} setCoverPhoto={setCoverPhoto} />}
+    {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} setCoverPhoto={setCoverPhoto} actorName={actorName} />}
     {tab === 'personal' && <PersonalNotes trip={trip} personal={personal} updatePersonal={updatePersonal} />}
   </>
 }
@@ -179,9 +180,10 @@ function PackingNotes({ trip, shared, updateShared }) {
   </section>
 }
 
-function Memories({ trip, shared, updateShared, setCoverPhoto }) {
+function Memories({ trip, shared, updateShared, setCoverPhoto, actorName }) {
   return <>
     <TripPhotos tripId={trip.id} onCoverChange={setCoverPhoto} />
+    <TripJournal tripId={trip.id} actorName={actorName} />
     <section className="twoCol">
       <section className="panel"><h2>Memories</h2><textarea value={shared.memories || ''} onChange={e=>updateShared(trip.id,{memories:e.target.value})} placeholder="Favorite moments, meals, photos, stories..." /></section>
       <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>

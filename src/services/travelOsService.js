@@ -651,3 +651,39 @@ export async function loadAllCoverPhotos() {
   (data || []).forEach(p => { map[p.trip_id] = p.url; });
   return map;
 }
+
+// ── Sprint 4B: Post-Trip Journal ──────────────────────
+
+export async function loadTripJournal(tripId) {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('trip_journal').select('*')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+    .order('entry_date', { ascending: true });
+  if (error) console.error(error);
+  return data || [];
+}
+
+export async function saveJournalEntry(entry) {
+  if (!isSupabaseConfigured) return;
+  const session = await getSession();
+  const payload = {
+    ...entry,
+    household_id: HOUSEHOLD_ID,
+    authored_by: session?.user?.id || null,
+    updated_at: new Date().toISOString(),
+  };
+  if (entry.id) {
+    const { error } = await supabase.from('trip_journal').update(payload).eq('id', entry.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('trip_journal').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteJournalEntry(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_journal').delete().eq('id', id);
+  if (error) throw error;
+}
