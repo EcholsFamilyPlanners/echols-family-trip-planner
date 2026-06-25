@@ -15,19 +15,37 @@ import People from './components/People';
 import { TripFinder, Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
-  saveSharedTripPatch, savePersonalTripPatch, saveTripVote,
+  saveSharedTripPatch, savePersonalTripPatch, saveTripVote, saveTogetherNotes,
   addCustomTrip as saveCustomTrip, ensureHouseholdMember
 } from './services/travelOsService';
 import './styles.css';
 
 function App(){
-  const [view,setView]=useState('dashboard'); const [selected,setSelected]=useState(null); const [session,setSession]=useState(null);
-  const [sharedTripData,setSharedTripData]=useState({}); const [personalTripData,setPersonalTripData]=useState({}); const [customTrips,setCustomTrips]=useState([]);
-  const [packingTemplates,setPackingTemplates]=useState([]); const [packingItems,setPackingItems]=useState([]); const [sportsVenues,setSportsVenues]=useState([]);
-  const [householdMembers,setHouseholdMembers]=useState([]); const [allPersonalTripData,setAllPersonalTripData]=useState([]);
-  const [myVotes,setMyVotes]=useState({}); const [allVotes,setAllVotes]=useState([]);
+  const [view,setView]=useState('dashboard');
+  const [selected,setSelected]=useState(null);
+  const [session,setSession]=useState(null);
+  const [sharedTripData,setSharedTripData]=useState({});
+  const [personalTripData,setPersonalTripData]=useState({});
+  const [customTrips,setCustomTrips]=useState([]);
+  const [packingTemplates,setPackingTemplates]=useState([]);
+  const [packingItems,setPackingItems]=useState([]);
+  const [sportsVenues,setSportsVenues]=useState([]);
+  const [householdMembers,setHouseholdMembers]=useState([]);
+  const [allPersonalTripData,setAllPersonalTripData]=useState([]);
+  const [myVotes,setMyVotes]=useState({});
+  const [allVotes,setAllVotes]=useState([]);
+  const [activityFeed,setActivityFeed]=useState([]);
+  const [togetherNotes,setTogetherNotesState]=useState('');
   const [ideaInbox,setIdeaInboxState]=useState(loadIdeaInbox);
   const destinations=useMemo(()=>[...seedDestinations,...customTrips],[customTrips]);
+
+  // Derive actor name from session
+  const actorName = useMemo(() => {
+    const email = session?.user?.email || '';
+    if (email.toLowerCase().includes('steph')) return 'Stephanie';
+    if (email.toLowerCase().includes('acechols')) return 'Anthony';
+    return email.split('@')[0] || 'Someone';
+  }, [session]);
 
   const refresh=async()=>{
     const data=await loadAllData(seedDestinations);
@@ -41,6 +59,8 @@ function App(){
     setSportsVenues(data.sportsVenues);
     setMyVotes(data.myVotes || {});
     setAllVotes(data.allVotes || []);
+    setActivityFeed(data.activityFeed || []);
+    setTogetherNotesState(data.togetherNotes || '');
   };
 
   useEffect(()=>{
@@ -52,20 +72,37 @@ function App(){
   const favoriteOf=t=>!!personalTripData[t.id]?.favorite;
   const voteOf=t=>myVotes[t.id]||null;
 
-  const updateShared=async(id,patch)=>{const cur=sharedTripData[id]||{};const next={...cur,...patch};setSharedTripData(p=>({...p,[id]:next}));try{await saveSharedTripPatch(id,patch,cur)}catch(e){alert(e.message)}};
-  const updatePersonal=async(id,patch)=>{const cur=personalTripData[id]||{};const next={...cur,...patch};setPersonalTripData(p=>({...p,[id]:next}));try{await savePersonalTripPatch(id,patch,cur);await refresh()}catch(e){alert(e.message)}};
+  const updateShared=async(id,patch)=>{
+    const cur=sharedTripData[id]||{};
+    const next={...cur,...patch};
+    setSharedTripData(p=>({...p,[id]:next}));
+    try{ await saveSharedTripPatch(id,patch,cur,actorName); }catch(e){ alert(e.message); }
+  };
+
+  const updatePersonal=async(id,patch)=>{
+    const cur=personalTripData[id]||{};
+    const next={...cur,...patch};
+    setPersonalTripData(p=>({...p,[id]:next}));
+    try{ await savePersonalTripPatch(id,patch,cur,actorName); await refresh(); }catch(e){ alert(e.message); }
+  };
+
   const toggleFavorite=t=>updatePersonal(t.id,{favorite:!favoriteOf(t)});
 
   const castVote=async(tripId,vote)=>{
-    // optimistic update
     setMyVotes(prev=>({...prev,[tripId]:vote}));
+    const trip=destinations.find(d=>d.id===tripId);
     try{
-      await saveTripVote(tripId,vote);
+      await saveTripVote(tripId, vote, trip?.title, actorName);
       await refresh();
     }catch(e){
       alert(e.message);
       await refresh();
     }
+  };
+
+  const updateTogetherNotes=async(notes)=>{
+    setTogetherNotesState(notes);
+    try{ await saveTogetherNotes(notes, actorName); }catch(e){ console.error(e); }
   };
 
   const openTrip=t=>{setSelected(t);setView('detail');window.scrollTo(0,0)};
@@ -75,9 +112,9 @@ function App(){
 
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
-    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox}/>}
+    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
     {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh}/>}
-    {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
+    {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash}/>}

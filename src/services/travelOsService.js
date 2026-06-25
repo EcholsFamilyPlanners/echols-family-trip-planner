@@ -40,10 +40,8 @@ export async function signOut() {
 
 export async function ensureHouseholdMember(session) {
   if (!isSupabaseConfigured || !session?.user?.id) return;
-
   const email = session.user.email || '';
   const displayName = email.toLowerCase().includes('steph') ? 'Stephanie' : email.toLowerCase().includes('acechols') ? 'Anthony' : email.split('@')[0];
-
   const { error } = await supabase.from('household_members').upsert({
     household_id: HOUSEHOLD_ID,
     user_id: session.user.id,
@@ -52,16 +50,15 @@ export async function ensureHouseholdMember(session) {
     nickname: displayName,
     role: 'member'
   }, { onConflict: 'household_id,user_id' });
-
   if (error) console.error(error);
 }
 
 export function loadIdeaInbox() {
-  return localStorage.getItem(LOCAL.inbox) || '';
+  return localStorage.getItem('travelos_v3_idea_inbox') || '';
 }
 
 export function saveIdeaInbox(value) {
-  localStorage.setItem(LOCAL.inbox, value);
+  localStorage.setItem('travelos_v3_idea_inbox', value);
 }
 
 export async function loadAllData(seedDestinations = []) {
@@ -77,20 +74,16 @@ export async function loadAllData(seedDestinations = []) {
       sportsVenues: [...seedVenues(seedDestinations), ...getLocal(LOCAL.venues, [])],
       allVotes: [],
       myVotes: {},
+      activityFeed: [],
+      togetherNotes: '',
     };
   }
 
   const session = await getSession();
 
   const [
-    sharedRes,
-    personalRes,
-    customRes,
-    templatesRes,
-    packingRes,
-    venuesRes,
-    membersRes,
-    votesRes,
+    sharedRes, personalRes, customRes, templatesRes,
+    packingRes, venuesRes, membersRes, votesRes, activityRes,
   ] = await Promise.all([
     supabase.from('shared_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
     supabase.from('personal_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
@@ -100,9 +93,10 @@ export async function loadAllData(seedDestinations = []) {
     supabase.from('sports_venues').select('*').eq('household_id', HOUSEHOLD_ID).order('name'),
     supabase.from('household_members').select('*').eq('household_id', HOUSEHOLD_ID).order('created_at'),
     supabase.from('trip_votes').select('*').eq('household_id', HOUSEHOLD_ID),
+    supabase.from('activity_feed').select('*').eq('household_id', HOUSEHOLD_ID).order('created_at', { ascending: false }).limit(40),
   ]);
 
-  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes, membersRes, votesRes]) {
+  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes, membersRes, votesRes, activityRes]) {
     if (res.error) console.error(res.error);
   }
 
@@ -124,6 +118,10 @@ export async function loadAllData(seedDestinations = []) {
   const dbVenues = venuesRes.data || [];
   const dbVenueNames = new Set(dbVenues.map(v => (v.name || '').toLowerCase()));
 
+  // Together notes stored in shared_trip_data with a special trip_id
+  const togetherRow = (sharedRes.data || []).find(r => r.trip_id === '__together__');
+  const togetherNotes = togetherRow?.shared_notes || '';
+
   return {
     sharedTripData,
     personalTripData,
@@ -135,10 +133,26 @@ export async function loadAllData(seedDestinations = []) {
     sportsVenues: [...seedVenues(seedDestinations).filter(v => !dbVenueNames.has(v.name.toLowerCase())), ...dbVenues],
     allVotes,
     myVotes,
+    activityFeed: activityRes.data || [],
+    togetherNotes,
   };
 }
 
-export async function saveTripVote(tripId, vote) {
+export async function logActivity({ userId, actorName, actionType, tripId, tripTitle, detail }) {
+  if (!isSupabaseConfigured || !userId) return;
+  const { error } = await supabase.from('activity_feed').insert({
+    household_id: HOUSEHOLD_ID,
+    user_id: userId,
+    actor_name: actorName || 'Someone',
+    action_type: actionType,
+    trip_id: tripId || null,
+    trip_title: tripTitle || null,
+    detail: detail || null,
+  });
+  if (error) console.error('Activity log error:', error);
+}
+
+export async function saveTripVote(tripId, vote, tripTitle, actorName) {
   if (!isSupabaseConfigured) return;
   const session = await getSession();
   if (!session?.user?.id) throw new Error('Sign in required.');
@@ -152,9 +166,42 @@ export async function saveTripVote(tripId, vote) {
   }, { onConflict: 'household_id,user_id,trip_id' });
 
   if (error) throw error;
+
+  const VOTE_LABEL = { love: '❤️ Love', like: '👍 Like', maybe: '🤔 Maybe', pass: '👋 Pass' };
+  await logActivity({
+    userId: session.user.id,
+    actorName: actorName || 'Someone',
+    actionType: 'vote',
+    tripId,
+    tripTitle,
+    detail: VOTE_LABEL[vote] || vote,
+  });
 }
 
-export async function saveSharedTripPatch(tripId, patch, current = {}) {
+export async function saveTogetherNotes(notes, actorName) {
+  if (!isSupabaseConfigured) return;
+  const session = await getSession();
+  const payload = {
+    household_id: HOUSEHOLD_ID,
+    trip_id: '__together__',
+    status: 'Idea',
+    shared_notes: notes,
+    updated_by: session?.user?.id || null,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase.from('shared_trip_data').upsert(payload, { onConflict: 'household_id,trip_id' });
+  if (error) throw error;
+  if (session?.user?.id) {
+    await logActivity({
+      userId: session.user.id,
+      actorName: actorName || 'Someone',
+      actionType: 'together_note',
+      detail: 'Updated shared planning notes',
+    });
+  }
+}
+
+export async function saveSharedTripPatch(tripId, patch, current = {}, actorName) {
   const next = { ...current, ...patch };
   if (!isSupabaseConfigured) {
     const all = getLocal(LOCAL.shared, {});
@@ -189,10 +236,22 @@ export async function saveSharedTripPatch(tripId, patch, current = {}) {
 
   const { error } = await supabase.from('shared_trip_data').upsert(payload, { onConflict: 'household_id,trip_id' });
   if (error) throw error;
+
+  // Log status changes to activity feed
+  if (patch.status && patch.status !== current.status && session?.user?.id) {
+    await logActivity({
+      userId: session.user.id,
+      actorName: actorName || 'Someone',
+      actionType: 'status',
+      tripId,
+      detail: `Status → ${patch.status}`,
+    });
+  }
+
   return next;
 }
 
-export async function savePersonalTripPatch(tripId, patch, current = {}) {
+export async function savePersonalTripPatch(tripId, patch, current = {}, actorName) {
   const next = { ...current, ...patch };
   if (!isSupabaseConfigured) {
     const all = getLocal(LOCAL.personal, {});
@@ -221,6 +280,18 @@ export async function savePersonalTripPatch(tripId, patch, current = {}) {
 
   const { error } = await supabase.from('personal_trip_data').upsert(payload, { onConflict: 'household_id,user_id,trip_id' });
   if (error) throw error;
+
+  // Log wish list changes
+  if (patch.wish_list !== undefined && patch.wish_list !== current.wish_list && session?.user?.id) {
+    await logActivity({
+      userId: session.user.id,
+      actorName: actorName || 'Someone',
+      actionType: 'wish_list',
+      tripId,
+      detail: patch.wish_list ? 'Added to wish list' : 'Removed from wish list',
+    });
+  }
+
   return next;
 }
 
@@ -276,7 +347,6 @@ export async function saveSportsVenue(venue) {
     setLocal(LOCAL.venues, exists ? all.map(v => (v.id === nextVenue.id || v.name === nextVenue.name) ? nextVenue : v) : [...all, nextVenue]);
     return;
   }
-
   const session = await getSession();
   const payload = {
     id: venue.id && !String(venue.id).startsWith('seed-') ? venue.id : undefined,
@@ -302,49 +372,32 @@ export async function saveSportsVenue(venue) {
 function seedVenues(destinations) {
   return destinations.flatMap(trip => (trip.sports || []).map(name => ({
     id: `seed-${trip.id}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    name,
-    city: '',
-    state_region: '',
-    country: '',
-    venue_type: 'Trip Venue',
-    league: '',
-    associated_trip_id: trip.id,
-    notes: trip.title,
-    visited: false,
-    seeded: true
+    name, city: '', state_region: '', country: '', venue_type: 'Trip Venue',
+    league: '', associated_trip_id: trip.id, notes: trip.title, visited: false, seeded: true
   })));
 }
 
 export async function saveHouseholdMember(member) {
   if (!isSupabaseConfigured) return;
-
   const payload = {
-    id: member.id,
-    household_id: HOUSEHOLD_ID,
-    user_id: member.user_id,
+    id: member.id, household_id: HOUSEHOLD_ID, user_id: member.user_id,
     email: member.email || '',
     display_name: member.display_name || member.nickname || member.email || 'Traveler',
     nickname: member.nickname || member.display_name || 'Traveler',
-    role: member.role || 'member',
-    is_active: member.is_active !== false
+    role: member.role || 'member', is_active: member.is_active !== false
   };
-
   const { error } = await supabase.from('household_members').upsert(payload);
   if (error) throw error;
 }
 
 export async function createHouseholdMemberByEmail({ email, display_name, nickname }) {
   if (!isSupabaseConfigured) return;
-
   const { error } = await supabase.from('household_members').insert({
-    household_id: HOUSEHOLD_ID,
-    email,
+    household_id: HOUSEHOLD_ID, email,
     display_name: display_name || nickname || email,
     nickname: nickname || display_name || email,
-    role: 'member',
-    is_active: true
+    role: 'member', is_active: true
   });
-
   if (error) throw error;
 }
 
@@ -359,9 +412,12 @@ function defaultTemplates() {
 
 function defaultPackingItems() {
   const rows = [
-    ['local-flight','Documents','Driver license / ID'], ['local-flight','Documents','Flight confirmation'], ['local-flight','Electronics','Phone charger'], ['local-flight','Clothing','Comfortable walking shoes'],
-    ['local-car','Documents','Driver license'], ['local-car','Car','Phone mount'], ['local-car','Car','Car charger'], ['local-car','Comfort','Cooler'], ['local-car','Extras','Stadium/photo stop list'],
-    ['local-europe','Documents','Passport'], ['local-europe','Electronics','Plug adapters'], ['local-europe','Clothing','Comfortable walking shoes'],
+    ['local-flight','Documents','Driver license / ID'], ['local-flight','Documents','Flight confirmation'],
+    ['local-flight','Electronics','Phone charger'], ['local-flight','Clothing','Comfortable walking shoes'],
+    ['local-car','Documents','Driver license'], ['local-car','Car','Phone mount'],
+    ['local-car','Car','Car charger'], ['local-car','Comfort','Cooler'], ['local-car','Extras','Stadium/photo stop list'],
+    ['local-europe','Documents','Passport'], ['local-europe','Electronics','Plug adapters'],
+    ['local-europe','Clothing','Comfortable walking shoes'],
     ['local-golf','Golf','Golf shoes'], ['local-golf','Golf','Golf balls'], ['local-golf','Golf','Golf clothes']
   ];
   return rows.map((r, i) => ({ id:`local-pack-${i}`, template_id:r[0], category:r[1], item:r[2], packed:false, sort_order:i }));

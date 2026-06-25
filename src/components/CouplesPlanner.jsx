@@ -1,49 +1,81 @@
+import { useState } from 'react';
 import TripCard from './TripCard';
 
 const VOTE_EMOJI = { love: '❤️', like: '👍', maybe: '🤔', pass: '👋' };
 const POSITIVE_VOTES = ['love', 'like'];
+const VOTE_SCORE = { love: 2, like: 1, maybe: 0, pass: -1 };
 
 export default function CouplesPlanner({
-  destinations,
-  householdMembers,
-  allPersonalTripData,
-  sharedTripData,
-  allVotes,
-  myVotes,
-  statusOf,
-  favoriteOf,
-  openTrip,
-  toggleFavorite
+  destinations, householdMembers, allPersonalTripData, sharedTripData,
+  allVotes, myVotes, togetherNotes, updateTogetherNotes,
+  statusOf, favoriteOf, openTrip, toggleFavorite
 }) {
+  const [notes, setNotes] = useState(togetherNotes || '');
+  const [saving, setSaving] = useState(false);
+
   const members = normalizeMembers(householdMembers, allPersonalTripData);
   const picksByUser = Object.fromEntries(members.map(m => [m.user_id, getWishTrips(destinations, allPersonalTripData, m.user_id)]));
   const bothWant = getBothWant(destinations, members, allPersonalTripData);
   const sharedQueue = destinations.filter(t => ['Considering','Top Pick','Planning','Booked','Bucket List'].includes(statusOf(t)));
-
-  // Trips where both members voted love or like
   const bothLove = getBothVotedPositive(destinations, members, allVotes);
+  const letsDecide = getTopCandidate(destinations, members, allVotes, statusOf);
 
-  // Per-member vote map for display
   const votesByUser = {};
   (allVotes || []).forEach(v => {
     if (!votesByUser[v.user_id]) votesByUser[v.user_id] = {};
     votesByUser[v.user_id][v.trip_id] = v.vote;
   });
 
+  const handleNotesSave = async () => {
+    setSaving(true);
+    try { await updateTogetherNotes(notes); } finally { setSaving(false); }
+  };
+
   return (
     <>
       <section className="panel">
         <h2>Together</h2>
-        <p className="muted">Each person's wish list, vote summaries, and the trips you both want to take.</p>
+        <p className="muted">Shared planning notes, each person's wish list, and the trips you both love.</p>
       </section>
 
-      {/* Both voted Love or Like */}
+      {/* Shared planning notes */}
+      <section className="panel togetherNotesPanel">
+        <h2>📝 Shared Planning Notes</h2>
+        <p className="muted">A shared space for both of you — current ideas, trips you're thinking about, things to research.</p>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="e.g. Thinking about Scotland for next fall. Anthony wants golf, Stephanie wants castles. Need to check flight prices in January..."
+          rows={5}
+        />
+        <button className="btn gold" onClick={handleNotesSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Notes'}
+        </button>
+      </section>
+
+      {/* Let's Decide highlight */}
+      {letsDecide && (
+        <section className="panel letsDecidePanel">
+          <h2>🎯 Let's Decide</h2>
+          <p className="muted">Based on your votes and planning status, this is your strongest candidate right now.</p>
+          <div className="letsDecideCard" onClick={() => openTrip(letsDecide.trip)}>
+            <div>
+              <h3>{letsDecide.trip.title}</h3>
+              <p>{letsDecide.trip.region} · {letsDecide.trip.idealDays} · {letsDecide.trip.budget}</p>
+              <p className="muted">{letsDecide.reason}</p>
+            </div>
+            <button className="btn gold">Open Trip →</button>
+          </div>
+        </section>
+      )}
+
+      {/* Trips you both love */}
       {bothLove.length > 0 && (
         <section className="panel bothLovePanel">
           <h2>❤️ Trips You Both Love</h2>
-          <p className="muted">Both Anthony and Stephanie voted Love or Like on these trips.</p>
+          <p className="muted">Both voted Love or Like — sorted by combined enthusiasm.</p>
           <div className="grid">
-            {bothLove.map(trip => (
+            {bothLove.map(({trip, score}) => (
               <TripCard key={trip.id} trip={trip} status={statusOf(trip)} favorite={favoriteOf(trip)} vote={myVotes?.[trip.id] || null} openTrip={openTrip} toggleFavorite={toggleFavorite}/>
             ))}
           </div>
@@ -74,21 +106,20 @@ export default function CouplesPlanner({
             ))}
           </div>
         ) : (
-          <p className="muted">No overlap yet. Add trips to each person's wish list and they'll appear here when both of you want the same destination.</p>
+          <p className="muted">No overlap yet. Add trips to each person's wish list and they'll appear here.</p>
         )}
       </section>
 
+      {/* Shared planning queue */}
       <section className="panel">
         <h2>Shared Planning Queue</h2>
         {sharedQueue.length ? (
           <div className="planningRows">
             {sharedQueue.map(trip => {
-              // Show how each member voted
               const voteSummary = members.map(m => {
                 const v = votesByUser[m.user_id]?.[trip.id];
                 return v ? `${m.display_name || m.nickname || 'Traveler'}: ${VOTE_EMOJI[v]}` : null;
               }).filter(Boolean).join('  ');
-
               return (
                 <div className="planningRow" key={trip.id} onClick={()=>openTrip(trip)}>
                   <b>{trip.title}</b>
@@ -110,12 +141,10 @@ export default function CouplesPlanner({
 function PersonPanel({ member, trips, allPersonalTripData, votes, openTrip }) {
   const voteEntries = Object.entries(votes);
   const loveLike = voteEntries.filter(([,v]) => POSITIVE_VOTES.includes(v)).length;
-
   return (
     <section className="panel personPanel">
       <h2>{member.display_name || member.nickname || member.email || 'Traveler'}</h2>
       <p className="muted">{trips.length} wish-list trips · {loveLike} Love/Like votes</p>
-
       {trips.length ? (
         <div className="personTripList">
           {trips.map((trip, i) => {
@@ -127,7 +156,6 @@ function PersonPanel({ member, trips, allPersonalTripData, votes, openTrip }) {
                 <span>{trip.region} · {trip.idealDays}</span>
                 {row.dream_reason && <small><b>Why:</b> {row.dream_reason}</small>}
                 {row.must_do && <small><b>Must do:</b> {row.must_do}</small>}
-                {row.personal_notes && <small><b>Notes:</b> {row.personal_notes}</small>}
               </button>
             );
           })}
@@ -135,10 +163,9 @@ function PersonPanel({ member, trips, allPersonalTripData, votes, openTrip }) {
       ) : (
         <p>No wish-list trips yet.</p>
       )}
-
       {voteEntries.length > 0 && (
         <div className="votesSummary">
-          <p className="muted" style={{marginTop:'1rem'}}><b>Recent votes:</b></p>
+          <p className="muted" style={{marginTop:'1rem'}}><b>Vote summary:</b></p>
           <div className="votePills">
             {(['love','like','maybe','pass']).map(v => {
               const count = voteEntries.filter(([,vote]) => vote === v).length;
@@ -188,9 +215,45 @@ function getBothVotedPositive(destinations, members, allVotes) {
   if (!allVotes || allVotes.length === 0 || members.length < 2) return [];
   const memberIds = members.map(m => m.user_id).filter(id => !id.includes('placeholder'));
   if (memberIds.length < 2) return [];
-  return destinations.filter(t =>
-    memberIds.every(uid =>
+  return destinations
+    .filter(t => memberIds.every(uid =>
       allVotes.some(v => v.user_id === uid && v.trip_id === t.id && POSITIVE_VOTES.includes(v.vote))
-    )
-  );
+    ))
+    .map(trip => {
+      const score = memberIds.reduce((sum, uid) => {
+        const v = allVotes.find(v => v.user_id === uid && v.trip_id === trip.id);
+        return sum + (v ? (VOTE_SCORE[v.vote] || 0) : 0);
+      }, 0);
+      return { trip, score };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+function getTopCandidate(destinations, members, allVotes, statusOf) {
+  if (!allVotes || members.length < 2) return null;
+  const memberIds = members.map(m => m.user_id).filter(id => !id.includes('placeholder'));
+  if (memberIds.length < 2) return null;
+
+  const STATUS_SCORE = { 'Top Pick': 3, 'Planning': 3, 'Booked': 3, 'Considering': 2, 'Bucket List': 1, 'Idea': 0 };
+
+  const scored = destinations.map(trip => {
+    const voteScore = memberIds.reduce((sum, uid) => {
+      const v = allVotes.find(v => v.user_id === uid && v.trip_id === trip.id);
+      return sum + (v ? (VOTE_SCORE[v.vote] || 0) : 0);
+    }, 0);
+    const statusScore = STATUS_SCORE[statusOf(trip)] || 0;
+    const total = voteScore + statusScore;
+    return { trip, voteScore, statusScore, total };
+  }).filter(x => x.total > 0).sort((a, b) => b.total - a.total);
+
+  if (!scored.length) return null;
+  const top = scored[0];
+
+  let reason = '';
+  if (top.voteScore >= 4) reason = 'Both of you voted Love — this is the clear favorite.';
+  else if (top.voteScore >= 3) reason = 'Strong votes from both of you.';
+  else if (top.statusScore >= 3) reason = `Already marked as ${statusOf(top.trip)} — ready to plan.`;
+  else reason = 'Highest combined vote and planning score.';
+
+  return { trip: top.trip, reason };
 }
