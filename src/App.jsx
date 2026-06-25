@@ -17,7 +17,7 @@ import { Budget, PackingManager, SportsTracker, Journal } from './components/Too
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
   saveSharedTripPatch, savePersonalTripPatch, saveTripVote, saveTogetherNotes,
-  addCustomTrip as saveCustomTrip, ensureHouseholdMember, loadAllCoverPhotos
+  addCustomTrip as saveCustomTrip, ensureHouseholdMember, loadAllCoverPhotos, loadJournalCounts
 } from './services/travelOsService';
 import './styles.css';
 
@@ -38,6 +38,7 @@ function App(){
   const [activityFeed,setActivityFeed]=useState([]);
   const [togetherNotes,setTogetherNotesState]=useState('');
   const [coverPhotos,setCoverPhotos]=useState({});
+  const [journalCounts,setJournalCounts]=useState({});
   const [ideaInbox,setIdeaInboxState]=useState(loadIdeaInbox);
   const destinations=useMemo(()=>[...seedDestinations,...customTrips],[customTrips]);
 
@@ -65,6 +66,8 @@ function App(){
     setTogetherNotesState(data.togetherNotes || '');
     const covers = await loadAllCoverPhotos();
     setCoverPhotos(covers);
+    const jCounts = await loadJournalCounts();
+    setJournalCounts(jCounts);
   };
 
   useEffect(()=>{
@@ -116,7 +119,7 @@ function App(){
 
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
-    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
+    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} journalCounts={journalCounts} sharedTripData={sharedTripData} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
     {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh}/>}
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} coverPhotos={coverPhotos} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}

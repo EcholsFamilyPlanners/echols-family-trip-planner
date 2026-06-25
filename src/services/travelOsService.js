@@ -687,3 +687,19 @@ export async function deleteJournalEntry(id) {
   const { error } = await supabase.from('trip_journal').delete().eq('id', id);
   if (error) throw error;
 }
+
+// ── Sprint 4C: Trips Taken Timeline ──────────────────
+
+export async function loadJournalCounts() {
+  if (!isSupabaseConfigured) return {};
+  const { data, error } = await supabase
+    .from('trip_journal')
+    .select('trip_id')
+    .eq('household_id', HOUSEHOLD_ID);
+  if (error) console.error(error);
+  const counts = {};
+  (data || []).forEach(row => {
+    counts[row.trip_id] = (counts[row.trip_id] || 0) + 1;
+  });
+  return counts;
+}

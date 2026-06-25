@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TripCard from './TripCard';
+import { img } from '../utils/helpers';
 
 function Metric({value,label}){return <div className="metric"><b>{value}</b><span>{label}</span></div>}
 
@@ -16,7 +17,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(hrs/24)}d ago`;
 }
 
-export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, openTrip, toggleFavorite, venues, activityFeed, refresh }) {
+export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, journalCounts, sharedTripData, openTrip, toggleFavorite, venues, activityFeed, refresh }) {
   const [tab, setTab] = useState('overview');
 
   const top = destinations.filter(d=>statusOf(d)==='Top Pick');
@@ -26,7 +27,6 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
   const venueVisited = venues.filter(v=>v.visited).length;
   const myLoved = destinations.filter(d => voteOf && ['love','like'].includes(voteOf(d)));
 
-  // Ranked trips — all voted trips sorted by vote then status
   const STATUS_SCORE = { 'Top Pick':3,'Planning':3,'Booked':3,'Considering':2,'Bucket List':1 };
   const rankedTrips = destinations
     .filter(d => voteOf && voteOf(d))
@@ -52,12 +52,14 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
       <div className="panel"><h2>Idea Inbox</h2><IdeaInbox/></div>
     </section>
 
-    {/* Dashboard tabs */}
     <section className="panel dashTabs">
       <div className="tabs">
         <button className={tab==='overview'?'active':''} onClick={()=>setTab('overview')}>Overview</button>
         <button className={tab==='ranked'?'active':''} onClick={()=>setTab('ranked')}>
           Ranked Trips {rankedTrips.length > 0 && <span className="tabBadge">{rankedTrips.length}</span>}
+        </button>
+        <button className={tab==='taken'?'active':''} onClick={()=>setTab('taken')}>
+          Trips Taken {visited.length > 0 && <span className="tabBadge">{visited.length}</span>}
         </button>
         <button className={tab==='activity'?'active':''} onClick={()=>setTab('activity')}>Recent Activity</button>
       </div>
@@ -103,6 +105,48 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
                 );
               })}
             </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'taken' && (
+        <div style={{marginTop:'1rem'}}>
+          {visited.length === 0 ? (
+            <div className="takenEmpty">
+              <span>🗺️</span>
+              <p>No trips marked as Visited yet.</p>
+              <small>When you complete a trip, open it and change the status to Visited. It will appear here as part of your travel history.</small>
+            </div>
+          ) : (
+            <>
+              <p className="muted">{visited.length} trip{visited.length!==1?'s':''} completed — your travel history.</p>
+              <div className="takenTimeline">
+                {visited.map((t, i) => {
+                  const cover = coverPhotos?.[t.id];
+                  const jCount = journalCounts?.[t.id] || 0;
+                  const shared = sharedTripData?.[t.id] || {};
+                  return (
+                    <div className="takenCard" key={t.id} onClick={()=>openTrip(t)}>
+                      <div className="takenCardHero" style={{backgroundImage:`url("${cover || img(t.id)}")`}}>
+                        <span className="takenNum">#{i+1}</span>
+                      </div>
+                      <div className="takenCardBody">
+                        <h3>{t.title}</h3>
+                        <p className="muted">{t.region} · {t.idealDays}</p>
+                        <div className="takenMeta">
+                          {cover && <span>📸 {coverPhotos[t.id] ? 'Photos uploaded' : ''}</span>}
+                          {jCount > 0 && <span>📓 {jCount} journal entr{jCount!==1?'ies':'y'}</span>}
+                          {shared.memories && <span>💭 Memories written</span>}
+                        </div>
+                        {shared.post_trip_summary && (
+                          <p className="takenSummary">{shared.post_trip_summary.slice(0,100)}{shared.post_trip_summary.length>100?'...':''}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </div>
       )}
