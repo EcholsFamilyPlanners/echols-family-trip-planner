@@ -520,3 +520,33 @@ export async function deleteBudgetItem(id) {
   const { error } = await supabase.from('trip_budget_items').delete().eq('id', id);
   if (error) throw error;
 }
+
+// ── Sprint 3C: Reservations Tracker ──────────────────
+
+export async function loadTripReservations(tripId) {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('trip_reservations').select('*')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+    .order('res_date', { ascending: true, nullsFirst: false });
+  if (error) console.error(error);
+  return data || [];
+}
+
+export async function saveReservation(res) {
+  if (!isSupabaseConfigured) return;
+  const payload = { ...res, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };
+  if (res.id) {
+    const { error } = await supabase.from('trip_reservations').update(payload).eq('id', res.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('trip_reservations').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteReservation(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_reservations').delete().eq('id', id);
+  if (error) throw error;
+}
