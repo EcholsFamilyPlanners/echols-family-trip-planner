@@ -479,3 +479,44 @@ export async function deleteRestaurant(id) {
   const { error } = await supabase.from('trip_restaurants').delete().eq('id', id);
   if (error) throw error;
 }
+
+// ── Sprint 3B: Per-Trip Budget Tracker ───────────────
+
+export async function loadTripBudget(tripId) {
+  if (!isSupabaseConfigured) return { target: 0, items: [] };
+  const [budgetRes, itemsRes] = await Promise.all([
+    supabase.from('trip_budget').select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId).maybeSingle(),
+    supabase.from('trip_budget_items').select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId).order('sort_order'),
+  ]);
+  if (budgetRes.error) console.error(budgetRes.error);
+  if (itemsRes.error) console.error(itemsRes.error);
+  return { target: budgetRes.data?.target || 0, items: itemsRes.data || [] };
+}
+
+export async function saveTripBudgetTarget(tripId, target) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_budget').upsert({
+    household_id: HOUSEHOLD_ID, trip_id: tripId,
+    target: Number(target) || 0,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'trip_id' });
+  if (error) throw error;
+}
+
+export async function saveBudgetItem(item) {
+  if (!isSupabaseConfigured) return;
+  const payload = { ...item, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };
+  if (item.id) {
+    const { error } = await supabase.from('trip_budget_items').update(payload).eq('id', item.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('trip_budget_items').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteBudgetItem(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_budget_items').delete().eq('id', id);
+  if (error) throw error;
+}
