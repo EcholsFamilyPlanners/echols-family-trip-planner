@@ -259,3 +259,28 @@
 .letsDecideCard h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
 
 .letsDecideCard p { margin: 0; font-size: .88rem; }
+
+/* ── V4.4 Trip Photos ──────────────────────────────── */
+.tripPhotosComingSoon {
+  border: 2px dashed var(--border, #e2e8f0);
+  background: var(--surface2, #f7f3ec);
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: .5rem;
+  margin-top: .75rem;
+}
+
+.photo {
+  display: block;
+  height: 130px;
+  border-radius: .5rem;
+  background-size: cover;
+  background-position: center;
+  text-decoration: none;
+  transition: transform .15s;
+}
+
+.photo:hover { transform: scale(1.02); }

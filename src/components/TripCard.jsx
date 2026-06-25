@@ -6,7 +6,7 @@ const VOTE_EMOJI = { love: '❤️', like: '👍', maybe: '🤔', pass: '👋' }
 export default function TripCard({ trip, status, favorite, vote, openTrip, toggleFavorite }) {
   return (
     <article className="tripCard" onClick={() => openTrip(trip)}>
-      <div className="tripImage" style={{ backgroundImage: `url("${img(trip.hero || trip.title)}")` }} />
+      <div className="tripImage" style={{ backgroundImage: `url("${img(trip.id, trip.customPhoto)}")` }} />
       <button
         className={`heart ${favorite ? 'on' : ''}`}
         onClick={(e) => { e.stopPropagation(); toggleFavorite(trip); }}

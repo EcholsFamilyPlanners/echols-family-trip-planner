@@ -26,7 +26,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
   return <>
     <button className="btn secondary" onClick={goBack}>← Back</button>
 
-    <section className="detailHero" style={{backgroundImage:`url("${img(trip.hero || trip.title)}")`}}>
+    <section className="detailHero" style={{backgroundImage:`url("${img(trip.id, trip.customPhoto)}")`}}>
       <div>
         <p className="eyebrow">{trip.region} · {trip.subregion}</p>
         <h1>{trip.title}</h1>
@@ -176,6 +176,10 @@ function Memories({ trip, shared, updateShared }) {
     <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>
     <section className="panel"><h2>What Worked</h2><textarea value={shared.what_worked || ''} onChange={e=>updateShared(trip.id,{what_worked:e.target.value})} placeholder="Best decisions, favorite places, what to repeat..." /></section>
     <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
+    <section className="panel tripPhotosComingSoon">
+      <h2>📸 Your Trip Photos</h2>
+      <p className="muted">Photo uploads are coming in a future sprint. You'll be able to upload your own photos here after each trip — they'll replace the placeholder images on the trip card and detail page.</p>
+    </section>
   </section>
 }
 
@@ -205,9 +209,22 @@ function PersonalNotes({ trip, personal, updatePersonal }) {
 }
 
 function PhotoGallery({ trip }) {
+  // Generate a small grid of stable scenic photos for this destination
+  const photoIds = Array.from({length: 6}, (_, i) => {
+    let hash = 0;
+    for (let c of `${trip.id}-photo-${i}`) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+    return 100 + (Math.abs(hash) % 800);
+  });
   return <section className="panel">
-    <h2>Photo Gallery</h2>
-    <div className="photoGrid">{[trip.hero,...(trip.photos||[])].slice(0,8).map(p=><a key={p} className="photo" href={mapUrl(p)} target="_blank" style={{backgroundImage:`url("${img(p)}")`}}><span>{p}</span></a>)}</div>
+    <h2>Destination Photos</h2>
+    <p className="muted">Scenic previews. After your trip, add your own photos in the Memories tab.</p>
+    <div className="photoGrid">
+      {photoIds.map((pid, i) => (
+        <a key={i} className="photo" href={mapUrl(trip.title)} target="_blank"
+          style={{backgroundImage:`url("https://picsum.photos/id/${pid}/600/400")`}}>
+        </a>
+      ))}
+    </div>
   </section>
 }
 
