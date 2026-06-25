@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import TripCard from './TripCard';
 
-export default function TripLibrary({ destinations, statusOf, favoriteOf, voteOf, openTrip, toggleFavorite }) {
+export default function TripLibrary({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, openTrip, toggleFavorite }) {
   const [f,setF]=useState({region:'',length:'',season:'',budget:'',q:''});
   const regions=[...new Set(destinations.map(d=>d.region))].sort();
   const filtered=useMemo(()=>destinations.filter(d=>
@@ -15,7 +15,7 @@ export default function TripLibrary({ destinations, statusOf, favoriteOf, voteOf
       <Field label="Season"><select value={f.season} onChange={e=>setF({...f,season:e.target.value})}><option value="">Any</option>{['Spring','Summer','Fall','Winter'].map(x=><option key={x}>{x}</option>)}</select></Field>
       <Field label="Budget"><select value={f.budget} onChange={e=>setF({...f,budget:e.target.value})}><option value="">Any</option>{['Comfortable','Premium','Bucket List','Value'].map(x=><option key={x}>{x}</option>)}</select></Field>
     </div><input className="search" value={f.q} onChange={e=>setF({...f,q:e.target.value})} placeholder="Search trips, stadiums, restaurants..."/></section>
-    <section className="grid">{filtered.map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf ? voteOf(t) : null} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}</section>
+    <section className="grid">{filtered.map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf ? voteOf(t) : null} coverPhoto={coverPhotos?.[t.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}</section>
   </>
 }
 function Field({label,children}){return <label className="field">{label}{children}</label>}

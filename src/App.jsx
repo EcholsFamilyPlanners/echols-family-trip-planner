@@ -17,7 +17,7 @@ import { Budget, PackingManager, SportsTracker, Journal } from './components/Too
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
   saveSharedTripPatch, savePersonalTripPatch, saveTripVote, saveTogetherNotes,
-  addCustomTrip as saveCustomTrip, ensureHouseholdMember
+  addCustomTrip as saveCustomTrip, ensureHouseholdMember, loadAllCoverPhotos
 } from './services/travelOsService';
 import './styles.css';
 
@@ -37,6 +37,7 @@ function App(){
   const [allVotes,setAllVotes]=useState([]);
   const [activityFeed,setActivityFeed]=useState([]);
   const [togetherNotes,setTogetherNotesState]=useState('');
+  const [coverPhotos,setCoverPhotos]=useState({});
   const [ideaInbox,setIdeaInboxState]=useState(loadIdeaInbox);
   const destinations=useMemo(()=>[...seedDestinations,...customTrips],[customTrips]);
 
@@ -62,6 +63,8 @@ function App(){
     setAllVotes(data.allVotes || []);
     setActivityFeed(data.activityFeed || []);
     setTogetherNotesState(data.togetherNotes || '');
+    const covers = await loadAllCoverPhotos();
+    setCoverPhotos(covers);
   };
 
   useEffect(()=>{
@@ -113,10 +116,10 @@ function App(){
 
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
-    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
+    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
     {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh}/>}
-    {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
-    {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
+    {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} coverPhotos={coverPhotos} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
+    {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash}/>}
     {view==='wishlist'&&<WishLists destinations={destinations} personalTripData={personalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} updatePersonal={updatePersonal}/>}

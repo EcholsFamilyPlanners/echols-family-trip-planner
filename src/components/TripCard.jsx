@@ -3,10 +3,11 @@ import { img } from '../utils/helpers';
 
 const VOTE_EMOJI = { love: '❤️', like: '👍', maybe: '🤔', pass: '👋' };
 
-export default function TripCard({ trip, status, favorite, vote, openTrip, toggleFavorite }) {
+export default function TripCard({ trip, status, favorite, vote, coverPhoto, openTrip, toggleFavorite }) {
+  const photoUrl = coverPhoto || img(trip.id);
   return (
     <article className="tripCard" onClick={() => openTrip(trip)}>
-      <div className="tripImage" style={{ backgroundImage: `url("${img(trip.id, trip.customPhoto)}")` }} />
+      <div className="tripImage" style={{ backgroundImage: `url("${photoUrl}")` }} />
       <button
         className={`heart ${favorite ? 'on' : ''}`}
         onClick={(e) => { e.stopPropagation(); toggleFavorite(trip); }}

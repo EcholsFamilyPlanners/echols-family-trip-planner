@@ -16,7 +16,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(hrs/24)}d ago`;
 }
 
-export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, openTrip, toggleFavorite, venues, activityFeed, refresh }) {
+export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, openTrip, toggleFavorite, venues, activityFeed, refresh }) {
   const [tab, setTab] = useState('overview');
 
   const top = destinations.filter(d=>statusOf(d)==='Top Pick');
@@ -68,14 +68,14 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
             <h3>❤️ My Loved Trips</h3>
             <p className="muted">Trips you voted Love or Like.</p>
             <div className="miniGrid">
-              {myLoved.map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf(t)} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}
+              {myLoved.map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf(t)} coverPhoto={coverPhotos?.[t.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}
             </div>
           </div>
         )}
         <div style={{marginTop:'1.5rem'}}>
           <h3>Top Picks</h3>
           <div className="miniGrid">
-            {top.slice(0,6).map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf?voteOf(t):null} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}
+            {top.slice(0,6).map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf?voteOf(t):null} coverPhoto={coverPhotos?.[t.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}
           </div>
         </div>
       </>}

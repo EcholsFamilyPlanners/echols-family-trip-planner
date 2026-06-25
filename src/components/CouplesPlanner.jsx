@@ -7,7 +7,7 @@ const VOTE_SCORE = { love: 2, like: 1, maybe: 0, pass: -1 };
 
 export default function CouplesPlanner({
   destinations, householdMembers, allPersonalTripData, sharedTripData,
-  allVotes, myVotes, togetherNotes, updateTogetherNotes,
+  allVotes, myVotes, coverPhotos, togetherNotes, updateTogetherNotes,
   statusOf, favoriteOf, openTrip, toggleFavorite
 }) {
   const [notes, setNotes] = useState(togetherNotes || '');
@@ -76,7 +76,7 @@ export default function CouplesPlanner({
           <p className="muted">Both voted Love or Like — sorted by combined enthusiasm.</p>
           <div className="grid">
             {bothLove.map(({trip, score}) => (
-              <TripCard key={trip.id} trip={trip} status={statusOf(trip)} favorite={favoriteOf(trip)} vote={myVotes?.[trip.id] || null} openTrip={openTrip} toggleFavorite={toggleFavorite}/>
+              <TripCard key={trip.id} trip={trip} status={statusOf(trip)} favorite={favoriteOf(trip)} vote={myVotes?.[trip.id] || null} coverPhoto={coverPhotos?.[trip.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>
             ))}
           </div>
         </section>
@@ -102,7 +102,7 @@ export default function CouplesPlanner({
         {bothWant.length ? (
           <div className="grid">
             {bothWant.map(trip => (
-              <TripCard key={trip.id} trip={trip} status={statusOf(trip)} favorite={favoriteOf(trip)} vote={myVotes?.[trip.id] || null} openTrip={openTrip} toggleFavorite={toggleFavorite}/>
+              <TripCard key={trip.id} trip={trip} status={statusOf(trip)} favorite={favoriteOf(trip)} vote={myVotes?.[trip.id] || null} coverPhoto={coverPhotos?.[trip.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>
             ))}
           </div>
         ) : (

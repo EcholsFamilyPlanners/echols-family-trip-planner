@@ -637,3 +637,17 @@ export async function updatePhotoCaption(photoId, caption) {
     .eq('id', photoId);
   if (error) throw error;
 }
+
+// Load all cover photos for the household (for trip cards)
+export async function loadAllCoverPhotos() {
+  if (!isSupabaseConfigured) return {};
+  const { data, error } = await supabase
+    .from('trip_photos')
+    .select('trip_id, url')
+    .eq('household_id', HOUSEHOLD_ID)
+    .eq('is_cover', true);
+  if (error) console.error(error);
+  const map = {};
+  (data || []).forEach(p => { map[p.trip_id] = p.url; });
+  return map;
+}
