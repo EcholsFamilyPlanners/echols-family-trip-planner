@@ -75,8 +75,12 @@ export async function loadAllData(seedDestinations = []) {
       packingTemplates: getLocal(LOCAL.packingTemplates, defaultTemplates()),
       packingItems: getLocal(LOCAL.packingItems, defaultPackingItems()),
       sportsVenues: [...seedVenues(seedDestinations), ...getLocal(LOCAL.venues, [])],
+      allVotes: [],
+      myVotes: {},
     };
   }
+
+  const session = await getSession();
 
   const [
     sharedRes,
@@ -86,6 +90,7 @@ export async function loadAllData(seedDestinations = []) {
     packingRes,
     venuesRes,
     membersRes,
+    votesRes,
   ] = await Promise.all([
     supabase.from('shared_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
     supabase.from('personal_trip_data').select('*').eq('household_id', HOUSEHOLD_ID),
@@ -94,21 +99,27 @@ export async function loadAllData(seedDestinations = []) {
     supabase.from('packing_items').select('*').eq('household_id', HOUSEHOLD_ID).order('sort_order'),
     supabase.from('sports_venues').select('*').eq('household_id', HOUSEHOLD_ID).order('name'),
     supabase.from('household_members').select('*').eq('household_id', HOUSEHOLD_ID).order('created_at'),
+    supabase.from('trip_votes').select('*').eq('household_id', HOUSEHOLD_ID),
   ]);
 
-  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes, membersRes]) {
+  for (const res of [sharedRes, personalRes, customRes, templatesRes, packingRes, venuesRes, membersRes, votesRes]) {
     if (res.error) console.error(res.error);
   }
 
   const sharedTripData = {};
   (sharedRes.data || []).forEach(row => { sharedTripData[row.trip_id] = row; });
 
-  const session = await getSession();
   const allPersonalTripData = personalRes.data || [];
   const personalTripData = {};
   allPersonalTripData
     .filter(row => !session?.user?.id || row.user_id === session.user.id)
     .forEach(row => { personalTripData[row.trip_id] = row; });
+
+  const allVotes = votesRes.data || [];
+  const myVotes = {};
+  allVotes
+    .filter(row => row.user_id === session?.user?.id)
+    .forEach(row => { myVotes[row.trip_id] = row.vote; });
 
   const dbVenues = venuesRes.data || [];
   const dbVenueNames = new Set(dbVenues.map(v => (v.name || '').toLowerCase()));
@@ -122,7 +133,25 @@ export async function loadAllData(seedDestinations = []) {
     packingTemplates: templatesRes.data || defaultTemplates(),
     packingItems: packingRes.data || defaultPackingItems(),
     sportsVenues: [...seedVenues(seedDestinations).filter(v => !dbVenueNames.has(v.name.toLowerCase())), ...dbVenues],
+    allVotes,
+    myVotes,
   };
+}
+
+export async function saveTripVote(tripId, vote) {
+  if (!isSupabaseConfigured) return;
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error('Sign in required.');
+
+  const { error } = await supabase.from('trip_votes').upsert({
+    household_id: HOUSEHOLD_ID,
+    user_id: session.user.id,
+    trip_id: tripId,
+    vote,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'household_id,user_id,trip_id' });
+
+  if (error) throw error;
 }
 
 export async function saveSharedTripPatch(tripId, patch, current = {}) {
@@ -286,8 +315,6 @@ function seedVenues(destinations) {
   })));
 }
 
-
-
 export async function saveHouseholdMember(member) {
   if (!isSupabaseConfigured) return;
 
@@ -320,7 +347,6 @@ export async function createHouseholdMemberByEmail({ email, display_name, nickna
 
   if (error) throw error;
 }
-
 
 function defaultTemplates() {
   return [

@@ -3,11 +3,25 @@ import { useState } from 'react';
 import { MapPin, Printer } from 'lucide-react';
 import { img, mapUrl, money } from '../utils/helpers';
 
-export default function TripDetail({ trip, shared={}, personal={}, updateShared, updatePersonal, goBack }) {
+const VOTES = [
+  { value: 'love',  label: '❤️ Love' },
+  { value: 'like',  label: '👍 Like' },
+  { value: 'maybe', label: '🤔 Maybe' },
+  { value: 'pass',  label: '👋 Pass' },
+];
+
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack }) {
   const [tab, setTab] = useState('overview');
+  const [voting, setVoting] = useState(false);
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
+
+  const handleVote = async (v) => {
+    if (voting) return;
+    setVoting(true);
+    try { await castVote(trip.id, v); } finally { setVoting(false); }
+  };
 
   return <>
     <button className="btn secondary" onClick={goBack}>← Back</button>
@@ -26,10 +40,28 @@ export default function TripDetail({ trip, shared={}, personal={}, updateShared,
           {['Idea','Considering','Top Pick','Bucket List','Planning','Booked','Visited'].map(x=><option key={x}>{x}</option>)}
         </select>
         <label className="toggle"><input type="checkbox" checked={favorite} onChange={e=>updatePersonal(trip.id,{favorite:e.target.checked})}/> My Favorite</label>
-      <label className="toggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> My Wish List</label>
+        <label className="toggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> My Wish List</label>
         <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a>
         <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
       </div>
+    </section>
+
+    <section className="panel votePanel">
+      <h3>My Vote</h3>
+      <p className="muted">How excited are you about this trip?</p>
+      <div className="voteButtons">
+        {VOTES.map(v => (
+          <button
+            key={v.value}
+            className={`voteBtn ${myVote === v.value ? 'active' : ''}`}
+            onClick={() => handleVote(v.value)}
+            disabled={voting}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+      {myVote && <p className="voteConfirm">Your vote: <b>{VOTES.find(v=>v.value===myVote)?.label}</b></p>}
     </section>
 
     <section className="metrics">
@@ -146,7 +178,6 @@ function Memories({ trip, shared, updateShared }) {
     <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
   </section>
 }
-
 
 function PersonalNotes({ trip, personal, updatePersonal }) {
   return <section className="twoCol">

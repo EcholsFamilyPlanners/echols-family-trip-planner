@@ -1,140 +1,42 @@
-# Anthony & Stephanie Travel OS V3.0
+# Anthony & Stephanie Travel OS V4.1
 
-This is the new long-term foundation for the shared travel platform.
+## V4.1 Voting System
 
-## Included
-- 47 trip ideas
-- Shared trip status and notes
-- Personal favorites
-- Trip Library
-- Trip Finder
-- Budget estimator
-- Packing Manager with templates
-- Sports Venue Tracker with visited tracking
-- Travel Journal
-- Add custom trips
-- Supabase-ready shared database structure
-- Netlify-ready deployment
+Adds per-person voting on every trip so the Together page can surface trips you both love.
 
-## Supabase setup
+### New in V4.1
 
-Run both migration files in Supabase SQL Editor, in this order:
+- **Vote buttons on every Trip Detail page** — ❤️ Love / 👍 Like / 🤔 Maybe / 👋 Pass
+- **Vote indicator on Trip Library cards** — small emoji shows your current vote at a glance
+- **Together page — Trips You Both Love** — highlighted section at the top showing trips where both Anthony and Stephanie voted Love or Like
+- **Vote summary in person panels** — each person's panel shows a Love/Like/Maybe/Pass count
+- **Vote emoji in planning queue** — each trip in the shared queue shows how each person voted
 
-1. `supabase/migrations/001_travel_os_core.sql`
-2. `supabase/migrations/002_seed_packing_templates.sql`
+### New Supabase migration to run
 
-## Netlify environment variables
+Run this in Supabase SQL Editor **before deploying**:
 
-Add these to Netlify:
-
-```text
-VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
 ```
+supabase/migrations/008_trip_votes.sql
+```
+
+### Previous migrations (already done)
+1. 001_travel_os_core.sql
+2. 002_seed_packing_templates.sql
+3. 003_trip_notebook_fields.sql
+4. 004_personal_wishlist_notes.sql
+5. 005_couples_planner_functionality.sql
+6. 006_trip_decision_tools.sql
+7. 007_people_household_foundation.sql
 
 ## Netlify build settings
 
-Build command:
+Build command: `npm run build`
+Publish directory: `dist`
 
-```bash
-npm run build
+## Environment variables
+
 ```
-
-Publish directory:
-
-```text
-dist
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
 ```
-
-Base directory: leave blank.
-
-## Important
-
-V3 separates shared data and personal data:
-
-Shared:
-- trip status
-- shared notes
-- memories
-- custom trips
-- packing
-- sports venue tracker
-
-Personal:
-- favorites
-- personal ratings
-- personal notes
-
-V3.1 should tighten household membership policies after both Anthony and Stephanie are signed in.
-
-
-## V3.1 Trip Notebook Update
-
-Adds a richer trip detail page with tabs:
-- Overview
-- Plan
-- Itinerary
-- Food & Hotels
-- Sports
-- Packing
-- Memories
-
-New migration:
-- `supabase/migrations/003_trip_notebook_fields.sql`
-
-
-## V3.2 Personal Wish Lists
-
-Adds:
-- Wish Lists navigation section
-- Personal wish list per signed-in user
-- Personal trip notes
-- Why I want to go
-- Must-do list
-- Personal rank and rating
-- Wish-list checkbox on each trip page
-
-New migration:
-- `supabase/migrations/004_personal_wishlist_notes.sql`
-
-
-## V3.3 Core Functionality
-
-Focus:
-- Together page
-- Anthony and Stephanie wish lists side-by-side
-- Trips both people want
-- Shared planning queue
-- Household member registration on sign-in
-- Less decoration, more useful planning behavior
-
-New migration:
-- `supabase/migrations/005_couples_planner_functionality.sql`
-
-
-## V3.4 Stage 2 — Trip Decision Tools
-
-Adds:
-- Compare page
-- Side-by-side trip comparison
-- Best-match ranking based on days, season, budget, style, and sports
-- Uses shared planning status
-- Uses personal wish list/favorite data
-- Shows trips both Anthony and Stephanie want
-
-Migration:
-- `supabase/migrations/006_trip_decision_tools.sql`
-- No schema changes required.
-
-
-## V4.0 People & Household Foundation
-
-Adds:
-- People page
-- Edit household member names/nicknames
-- Add Stephanie/household member placeholder
-- More reliable Together page member display
-- Household member migration from existing Supabase users
-
-Migration:
-- `supabase/migrations/007_people_household_foundation.sql`

@@ -76,3 +76,105 @@
 .peopleForm label{font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:900;letter-spacing:.06em}
 .peopleForm input{display:block;margin-top:6px}
 @media(max-width:900px){.peopleGrid,.peopleAdd,.peopleForm{grid-template-columns:1fr}}
+
+/* ── V4.1 Voting ───────────────────────────────────── */
+
+.votePanel {
+  margin-bottom: 1rem;
+}
+
+.votePanel h3 {
+  margin: 0 0 .25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.voteButtons {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: .75rem;
+}
+
+.voteBtn {
+  padding: .5rem 1.1rem;
+  border-radius: 2rem;
+  border: 2px solid var(--border, #e2e8f0);
+  background: transparent;
+  cursor: pointer;
+  font-size: .95rem;
+  transition: all .15s;
+  color: var(--text, #1a202c);
+}
+
+.voteBtn:hover {
+  border-color: var(--gold, #c9a84c);
+  background: var(--surface2, #f7f3ec);
+}
+
+.voteBtn.active {
+  background: var(--gold, #c9a84c);
+  border-color: var(--gold, #c9a84c);
+  color: #fff;
+  font-weight: 700;
+}
+
+.voteBtn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.voteConfirm {
+  margin-top: .75rem;
+  font-size: .9rem;
+  color: var(--muted, #718096);
+}
+
+/* Vote indicator on TripCard */
+.voteIndicator {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+  pointer-events: none;
+}
+
+/* Both love panel */
+.bothLovePanel {
+  border: 2px solid var(--gold, #c9a84c);
+}
+
+.bothLovePanel h2 {
+  color: var(--gold, #c9a84c);
+}
+
+/* Vote pills in person panel */
+.votePills {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-top: .3rem;
+}
+
+.votePill {
+  padding: .2rem .6rem;
+  border-radius: 1rem;
+  font-size: .82rem;
+  font-weight: 600;
+  background: var(--surface2, #f7f3ec);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.votePill.love { background: #fff0f0; border-color: #fca5a5; }
+.votePill.like { background: #f0f9ff; border-color: #93c5fd; }
+.votePill.maybe { background: #fffbeb; border-color: #fcd34d; }
+.votePill.pass { background: #f9fafb; border-color: #d1d5db; }
+
+/* Vote summary in planning queue row */
+.planningVotes {
+  font-size: .85rem;
+  color: var(--muted, #718096);
+  margin-top: .1rem;
+}
