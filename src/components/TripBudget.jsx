@@ -35,7 +35,13 @@ export default function TripBudget({ tripId }) {
 
   const saveItem = async () => {
     if (!form?.label?.trim()) return alert('Item name is required.');
-    await saveBudgetItem({ ...form, trip_id: tripId, sort_order: items.length });
+    await saveBudgetItem({
+      ...form,
+      trip_id: tripId,
+      sort_order: items.length,
+      estimated: Number(form.estimated) || 0,
+      actual: form.actual !== '' && form.actual !== null ? Number(form.actual) : null,
+    });
     setForm(null);
     await load();
   };
