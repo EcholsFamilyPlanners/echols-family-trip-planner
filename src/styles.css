@@ -359,3 +359,87 @@
   .deResult { grid-template-columns:1fr; }
   .deResultHero { min-height:120px; }
 }
+
+/* ── Sprint 3A: Hotel & Restaurant Shortlists ──────── */
+
+.shortlistsWrap { display:flex; flex-direction:column; gap:1rem; }
+
+.shortlistPanel {}
+
+.shortlistHeader {
+  display:flex; align-items:center;
+  justify-content:space-between; margin-bottom:1rem;
+}
+.shortlistHeader h2 { margin:0; }
+
+.shortlistForm {
+  background: var(--surface2,#f7f3ec);
+  border-radius:.75rem; padding:1.25rem;
+  margin-bottom:1.25rem;
+  border:1px solid var(--border,#e2e8f0);
+}
+.shortlistForm h3 { margin:0 0 1rem; font-size:1rem; }
+.shortlistFormGrid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:.75rem; margin-bottom:.75rem;
+}
+.shortlistForm label { display:flex; flex-direction:column; gap:.3rem; font-size:.88rem; font-weight:600; }
+.shortlistForm input, .shortlistForm select, .shortlistForm textarea {
+  font-weight:400; padding:.45rem .6rem;
+  border:1px solid var(--border,#e2e8f0);
+  border-radius:.4rem; font-size:.9rem;
+  background: var(--surface,#fff);
+}
+.shortlistForm textarea { min-height:70px; resize:vertical; margin-top:.5rem; width:100%; box-sizing:border-box; }
+.formActions { display:flex; gap:.5rem; margin-top:.75rem; }
+
+.shortlistCards { display:flex; flex-direction:column; gap:.6rem; }
+
+.shortlistCard {
+  padding:1rem; border-radius:.6rem;
+  border:1px solid var(--border,#e2e8f0);
+  background: var(--surface,#fff);
+  transition: border-color .15s;
+}
+.shortlistCard.shortlisted { border-color:#93c5fd; background:#f0f9ff; }
+.shortlistCard.booked { border-color:var(--gold,#c9a84c); background:#fffbeb; }
+.shortlistCard.mustTry { border-color:#fcd34d; background:#fffbeb; }
+
+.shortlistCardTop {
+  display:flex; align-items:flex-start;
+  justify-content:space-between; gap:.75rem;
+  flex-wrap:wrap;
+}
+.shortlistCardTop b { font-size:.98rem; }
+.shortlistCardActions { display:flex; gap:.35rem; flex-wrap:wrap; }
+
+.stars { color:var(--gold,#c9a84c); margin-left:.4rem; font-size:.85rem; }
+
+.statusPill {
+  display:inline-block; margin-left:.5rem;
+  padding:.1rem .55rem; border-radius:1rem;
+  font-size:.75rem; font-weight:700;
+}
+.statusPill.considering { background:#f1f5f9; color:#475569; }
+.statusPill.shortlisted { background:#dbeafe; color:#1d4ed8; }
+.statusPill.booked { background:#fef3c7; color:#92400e; }
+
+.mustTryBadge {
+  margin-left:.4rem; font-size:.78rem;
+  color:#92400e; font-weight:700;
+}
+.priceRange {
+  margin-left:.4rem; font-size:.85rem;
+  color:var(--muted,#718096); font-weight:700;
+}
+
+.shortlistMeta { margin:.3rem 0 0; font-size:.85rem; color:var(--muted,#718096); }
+.shortlistNotes { margin:.4rem 0 0; font-size:.85rem; color:var(--text,#1a202c); font-style:italic; }
+
+.btn.danger { color:#dc2626; }
+.btn.danger:hover { background:#fef2f2; border-color:#fca5a5; }
+
+@media(max-width:600px){
+  .shortlistFormGrid { grid-template-columns:1fr; }
+  .shortlistCardTop { flex-direction:column; }
+}

@@ -422,3 +422,60 @@ function defaultPackingItems() {
   ];
   return rows.map((r, i) => ({ id:`local-pack-${i}`, template_id:r[0], category:r[1], item:r[2], packed:false, sort_order:i }));
 }
+
+// ── Sprint 3A: Hotel & Restaurant Shortlists ──────────
+
+export async function loadTripShortlists(tripId) {
+  if (!isSupabaseConfigured) return { hotels: [], restaurants: [] };
+  const [hotelsRes, restsRes] = await Promise.all([
+    supabase.from('trip_hotels').select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId).order('created_at'),
+    supabase.from('trip_restaurants').select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId).order('created_at'),
+  ]);
+  if (hotelsRes.error) console.error(hotelsRes.error);
+  if (restsRes.error) console.error(restsRes.error);
+  return { hotels: hotelsRes.data || [], restaurants: restsRes.data || [] };
+}
+
+export async function saveHotel(hotel) {
+  if (!isSupabaseConfigured) return;
+  const payload = {
+    ...hotel,
+    household_id: HOUSEHOLD_ID,
+    updated_at: new Date().toISOString(),
+  };
+  if (hotel.id) {
+    const { error } = await supabase.from('trip_hotels').update(payload).eq('id', hotel.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('trip_hotels').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteHotel(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_hotels').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function saveRestaurant(restaurant) {
+  if (!isSupabaseConfigured) return;
+  const payload = {
+    ...restaurant,
+    household_id: HOUSEHOLD_ID,
+    updated_at: new Date().toISOString(),
+  };
+  if (restaurant.id) {
+    const { error } = await supabase.from('trip_restaurants').update(payload).eq('id', restaurant.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('trip_restaurants').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteRestaurant(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_restaurants').delete().eq('id', id);
+  if (error) throw error;
+}

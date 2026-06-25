@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { MapPin, Printer } from 'lucide-react';
 import { img, mapUrl, money } from '../utils/helpers';
+import HotelShortlist from './HotelShortlist';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -138,12 +139,13 @@ function Itinerary({ trip, shared, updateShared }) {
 }
 
 function FoodHotels({ trip, shared, updateShared }) {
-  return <section className="twoCol">
-    <List title="Hotels" items={trip.hotels} linked/>
-    <List title="Restaurants" items={trip.restaurants} linked/>
-    <section className="panel"><h2>Hotel Notes</h2><textarea value={shared.hotel_notes || ''} onChange={e=>updateShared(trip.id,{hotel_notes:e.target.value})} placeholder="Hotel shortlist, rates, neighborhoods, pros/cons..." /></section>
-    <section className="panel"><h2>Restaurant Notes</h2><textarea value={shared.restaurant_notes || ''} onChange={e=>updateShared(trip.id,{restaurant_notes:e.target.value})} placeholder="Restaurants to reserve, casual meals, coffee, special dinners..." /></section>
-  </section>
+  return <>
+    <HotelShortlist tripId={trip.id} />
+    <section className="twoCol">
+      <section className="panel"><h2>Hotel Notes</h2><textarea value={shared.hotel_notes || ''} onChange={e=>updateShared(trip.id,{hotel_notes:e.target.value})} placeholder="Overall hotel strategy, neighborhoods to stay in, notes on timing..." /></section>
+      <section className="panel"><h2>Restaurant Notes</h2><textarea value={shared.restaurant_notes || ''} onChange={e=>updateShared(trip.id,{restaurant_notes:e.target.value})} placeholder="Overall dining strategy, areas to eat in, reservation tips..." /></section>
+    </section>
+  </>
 }
 
 function Sports({ trip }) {
