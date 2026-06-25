@@ -72,7 +72,9 @@
       "Galleries, spa time, scenic river views, and a long dinner.",
       "Optional Grands-Jardins or whale-watching extension.",
       "Return to Québec City and fly home."
-    ]
+    ],
+    "lat": 46.81,
+    "lng": -71.21
   },
   {
     "id": "calgary-banff-lake-louise",
@@ -147,7 +149,9 @@
       "Spa or relaxed Banff day.",
       "Optional Jasper extension.",
       "Return through Calgary."
-    ]
+    ],
+    "lat": 51.18,
+    "lng": -115.57
   },
   {
     "id": "toronto-prince-edward-county",
@@ -220,7 +224,9 @@
       "Wine tasting and small-town dining.",
       "Relaxed countryside day.",
       "Return to Toronto and fly home."
-    ]
+    ],
+    "lat": 43.65,
+    "lng": -79.38
   },
   {
     "id": "vancouver-victoria",
@@ -294,7 +300,9 @@
       "Butchart Gardens and Inner Harbour.",
       "Whale-watching or relaxed Victoria day.",
       "Return to Vancouver."
-    ]
+    ],
+    "lat": 49.28,
+    "lng": -123.12
   },
   {
     "id": "newfoundland",
@@ -365,7 +373,9 @@
       "Gros Morne scenic drives.",
       "Coastal villages and viewpoints.",
       "Return or extend to Fogo Island."
-    ]
+    ],
+    "lat": 47.56,
+    "lng": -52.71
   },
   {
     "id": "halifax-cabot-trail",
@@ -436,7 +446,9 @@
       "Relaxed coastal villages.",
       "Return to Halifax.",
       "Fly home."
-    ]
+    ],
+    "lat": 44.65,
+    "lng": -63.57
   },
   {
     "id": "maine-acadia",
@@ -508,7 +520,9 @@
       "Bass Harbor lighthouse sunset.",
       "Camden or Portland add-on.",
       "Fly home."
-    ]
+    ],
+    "lat": 44.35,
+    "lng": -68.21
   },
   {
     "id": "vermont-new-hampshire",
@@ -576,7 +590,9 @@
       "Kancamagus Highway.",
       "White Mountains and cozy dinner.",
       "Return and fly home."
-    ]
+    ],
+    "lat": 44,
+    "lng": -72.7
   },
   {
     "id": "boston-cape-cod",
@@ -649,7 +665,9 @@
       "Cape villages and seafood.",
       "Optional Martha’s Vineyard or Provincetown.",
       "Return to Boston."
-    ]
+    ],
+    "lat": 42.36,
+    "lng": -71.06
   },
   {
     "id": "nyc",
@@ -723,7 +741,9 @@
       "Sports venue or food tour.",
       "Optional Hudson Valley.",
       "Fly home."
-    ]
+    ],
+    "lat": 40.71,
+    "lng": -74.01
   },
   {
     "id": "miami-bimini",
@@ -794,7 +814,9 @@
       "Bimini day trip by ferry or seaplane.",
       "Relaxed Miami day.",
       "Fly home."
-    ]
+    ],
+    "lat": 25.77,
+    "lng": -80.19
   },
   {
     "id": "florida-keys",
@@ -862,7 +884,9 @@
       "Key West historic district and sunset.",
       "Optional Dry Tortugas.",
       "Return to Miami."
-    ]
+    ],
+    "lat": 24.55,
+    "lng": -81.78
   },
   {
     "id": "nashville",
@@ -932,7 +956,9 @@
       "Neighborhoods and rooftop evening.",
       "Franklin day trip or sports venue.",
       "Brunch and fly home."
-    ]
+    ],
+    "lat": 36.17,
+    "lng": -86.78
   },
   {
     "id": "new-orleans",
@@ -1003,7 +1029,9 @@
       "Bayou or plantation day trip.",
       "Jazz evening.",
       "Brunch and fly home."
-    ]
+    ],
+    "lat": 29.95,
+    "lng": -90.07
   },
   {
     "id": "houston",
@@ -1078,7 +1106,9 @@
       "Sports venue or game.",
       "Galveston or brunch day.",
       "Fly home."
-    ]
+    ],
+    "lat": 29.76,
+    "lng": -95.37
   },
   {
     "id": "chicago",
@@ -1151,7 +1181,9 @@
       "Wrigleyville or sports venue.",
       "Neighborhood food tour.",
       "Fly home."
-    ]
+    ],
+    "lat": 41.88,
+    "lng": -87.63
   },
   {
     "id": "mackinac",
@@ -1219,7 +1251,9 @@
       "Petoskey or Harbor Springs.",
       "Traverse City or Sleeping Bear.",
       "Fly home."
-    ]
+    ],
+    "lat": 45.86,
+    "lng": -84.62
   },
   {
     "id": "denver-rockies",
@@ -1291,7 +1325,9 @@
       "Estes Park day.",
       "Sports venue or city museum.",
       "Fly home."
-    ]
+    ],
+    "lat": 39.74,
+    "lng": -104.98
   },
   {
     "id": "yellowstone-grand-teton",
@@ -1361,7 +1397,9 @@
       "Lamar Valley sunrise.",
       "Jackson Hole evening.",
       "Return or extend."
-    ]
+    ],
+    "lat": 44.43,
+    "lng": -110.59
   },
   {
     "id": "utah-national-parks",
@@ -1431,7 +1469,9 @@
       "Moab, Arches, and Canyonlands.",
       "Stargazing night.",
       "Return."
-    ]
+    ],
+    "lat": 37.68,
+    "lng": -112.17
   },
   {
     "id": "montana-dakotas",
@@ -1501,7 +1541,9 @@
       "Badlands and Wall Drug.",
       "Mount Rushmore/Custer/Deadwood.",
       "Return."
-    ]
+    ],
+    "lat": 46.88,
+    "lng": -110.36
   },
   {
     "id": "san-diego-tijuana",
@@ -1576,7 +1618,9 @@
       "Guided Tijuana day trip.",
       "Temecula or Del Mar add-on.",
       "Fly home."
-    ]
+    ],
+    "lat": 32.72,
+    "lng": -117.15
   },
   {
     "id": "san-francisco",
@@ -1647,7 +1691,9 @@
       "Muir Woods or Napa.",
       "Sports venue or Twin Peaks sunset.",
       "Fly home."
-    ]
+    ],
+    "lat": 37.77,
+    "lng": -122.42
   },
   {
     "id": "southwest-road-trip",
@@ -1724,7 +1770,9 @@
       "Palm Springs.",
       "Joshua Tree.",
       "Finish Los Angeles with stadium stops."
-    ]
+    ],
+    "lat": 34.05,
+    "lng": -106.65
   },
   {
     "id": "pacific-northwest",
@@ -1798,7 +1846,9 @@
       "Ferry to San Juan Islands.",
       "Whale watching and waterfront dinner.",
       "Return to Seattle."
-    ]
+    ],
+    "lat": 47.61,
+    "lng": -122.33
   },
   {
     "id": "alaska",
@@ -1869,7 +1919,9 @@
       "Denali area.",
       "Wildlife/scenic day.",
       "Return and fly home."
-    ]
+    ],
+    "lat": 61.22,
+    "lng": -149.9
   },
   {
     "id": "hawaii",
@@ -1942,7 +1994,9 @@
       "Cultural/history day.",
       "Sunrise or sunset experience.",
       "Relaxed final dinner."
-    ]
+    ],
+    "lat": 20.8,
+    "lng": -156.33
   },
   {
     "id": "mexico-city-san-miguel",
@@ -2016,7 +2070,9 @@
       "Travel to San Miguel.",
       "Galleries, churches, rooftop sunset.",
       "Fly home."
-    ]
+    ],
+    "lat": 20.97,
+    "lng": -99.9
   },
   {
     "id": "merida-yucatan",
@@ -2088,7 +2144,9 @@
       "Celestún flamingos or Chichén Itzá.",
       "Relaxed city day.",
       "Fly home."
-    ]
+    ],
+    "lat": 20.97,
+    "lng": -89.62
   },
   {
     "id": "oaxaca",
@@ -2158,7 +2216,9 @@
       "Hierve el Agua or relaxed city day.",
       "Food class or shopping.",
       "Fly home."
-    ]
+    ],
+    "lat": 17.07,
+    "lng": -96.72
   },
   {
     "id": "paris-normandy-london",
@@ -2232,7 +2292,9 @@
       "D-Day beaches and Bayeux.",
       "Eurostar to London.",
       "London theater, museums, and sports venues."
-    ]
+    ],
+    "lat": 48.85,
+    "lng": 2.35
   },
   {
     "id": "london",
@@ -2309,7 +2371,9 @@
       "Sports stadium tour.",
       "Markets and parks.",
       "Fly home."
-    ]
+    ],
+    "lat": 51.51,
+    "lng": -0.13
   },
   {
     "id": "great-britain",
@@ -2386,7 +2450,9 @@
       "Scotland/St Andrews extension.",
       "Cotswolds/Bath loop.",
       "Return to London."
-    ]
+    ],
+    "lat": 52.36,
+    "lng": -1.17
   },
   {
     "id": "scotland",
@@ -2462,7 +2528,9 @@
       "Isle of Skye loop.",
       "Glasgow or Speyside.",
       "Return."
-    ]
+    ],
+    "lat": 57.49,
+    "lng": -4.2
   },
   {
     "id": "italy",
@@ -2535,7 +2603,9 @@
       "Tuscany countryside day.",
       "Venice or Amalfi extension.",
       "Return."
-    ]
+    ],
+    "lat": 41.9,
+    "lng": 12.5
   },
   {
     "id": "portugal",
@@ -2607,7 +2677,9 @@
       "Porto riverfront and food.",
       "Douro Valley wine country.",
       "Fly home."
-    ]
+    ],
+    "lat": 38.72,
+    "lng": -9.14
   },
   {
     "id": "ireland",
@@ -2680,7 +2752,9 @@
       "Ring of Kerry or Dingle.",
       "Kinsale/Cork option.",
       "Return."
-    ]
+    ],
+    "lat": 53.33,
+    "lng": -6.25
   },
   {
     "id": "switzerland",
@@ -2753,7 +2827,9 @@
       "Scenic rail to Zermatt.",
       "Matterhorn viewpoints.",
       "Return."
-    ]
+    ],
+    "lat": 46.95,
+    "lng": 7.44
   },
   {
     "id": "australia",
@@ -2825,7 +2901,9 @@
       "Melbourne food and sports.",
       "Great Ocean Road.",
       "Optional Tasmania or Uluru."
-    ]
+    ],
+    "lat": -33.87,
+    "lng": 151.21
   },
   {
     "id": "northern-lights",
@@ -2897,7 +2975,9 @@
       "Aurora viewing night two.",
       "Scenic winter excursion.",
       "Buffer night for weather."
-    ]
+    ],
+    "lat": 69.65,
+    "lng": 18.96
   },
   {
     "id": "japan",
@@ -2970,7 +3050,9 @@
       "Temples and gardens.",
       "Nara day trip.",
       "Osaka/Hiroshima extension."
-    ]
+    ],
+    "lat": 35.68,
+    "lng": 139.69
   },
   {
     "id": "iceland",
@@ -3040,7 +3122,9 @@
       "Glacier lagoon.",
       "Blue Lagoon or Snæfellsnes.",
       "Return."
-    ]
+    ],
+    "lat": 64.13,
+    "lng": -21.94
   },
   {
     "id": "norway",
@@ -3111,7 +3195,9 @@
       "Optional Geirangerfjord.",
       "Northern Norway extension.",
       "Return."
-    ]
+    ],
+    "lat": 59.91,
+    "lng": 10.75
   },
   {
     "id": "new-zealand",
@@ -3181,7 +3267,9 @@
       "Mount Cook or Rotorua.",
       "North Island add-on.",
       "Return."
-    ]
+    ],
+    "lat": -36.86,
+    "lng": 174.77
   },
   {
     "id": "dallas-weekend",
@@ -3262,7 +3350,9 @@
       "Day 1: Drive or fly to Dallas, check in, visit Klyde Warren Park, Sixth Floor Museum, and Reunion Tower for skyline views.",
       "Day 2: Dallas Arboretum in the morning, George W. Bush Presidential Library or SMU area in the afternoon, Bishop Arts District for dinner, then a Mavericks, Stars, Rangers, or Cowboys-related event if available.",
       "Day 3: Brunch, Highland Park Village or Fort Worth Stockyards, AT&T Stadium tour or Globe Life Field photo stop, then return home."
-    ]
+    ],
+    "lat": 32.78,
+    "lng": -96.8
   },
   {
     "id": "little-rock-huntsville-atlanta-augusta-savannah-road-trip",
@@ -3364,7 +3454,9 @@
       "Day 6: Augusta to Savannah. Morning in Augusta, then drive to Savannah. Evening walk through the Historic District, Forsyth Park, and River Street.",
       "Day 7: Savannah full day. Historic squares, Bonaventure Cemetery, Tybee Island, seafood dinner, and optional ghost tour.",
       "Day 8: Savannah to Little Rock. Return drive home, with optional breaks in Macon, Birmingham, or Memphis depending on routing."
-    ]
+    ],
+    "lat": 34.75,
+    "lng": -86.59
   },
   {
     "id": "phoenix-scottsdale",
@@ -3453,6 +3545,8 @@
       "Day 4: Taliesin West, TPC Scottsdale, spa time, or a resort day; optional evening in Old Town Scottsdale.",
       "Day 5: Optional Sedona day trip for red rock scenery and photography.",
       "Day 6: Brunch, final desert photos, and return home."
-    ]
+    ],
+    "lat": 33.49,
+    "lng": -111.93
   }
 ]

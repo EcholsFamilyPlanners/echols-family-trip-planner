@@ -786,3 +786,31 @@
 @media(max-width:600px){
   .takenTimeline { grid-template-columns:1fr; }
 }
+
+/* ── Trip Map ──────────────────────────────────────── */
+
+.tripMapWrap { display:flex; flex-direction:column; gap:.75rem; }
+
+.tripMapLegend {
+  display:flex; flex-wrap:wrap; gap:.75rem 1.25rem;
+  align-items:center; font-size:.82rem;
+}
+.legendItem { display:flex; align-items:center; gap:.4rem; }
+.legendDot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #ccc; flex-shrink:0; }
+.legendTip { color:var(--muted,#718096); font-size:.78rem; margin-left:auto; }
+
+.tripMapCanvas {
+  width:100%; height:500px;
+  border-radius:.75rem; overflow:hidden;
+  border:1px solid var(--border,#e2e8f0);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius:.5rem !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.15) !important;
+}
+
+@media(max-width:600px){
+  .tripMapCanvas { height:320px; }
+  .legendTip { display:none; }
+}
