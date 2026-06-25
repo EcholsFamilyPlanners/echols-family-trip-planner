@@ -5,6 +5,7 @@ import { img, mapUrl, money } from '../utils/helpers';
 import HotelShortlist from './HotelShortlist';
 import TripBudget from './TripBudget';
 import TripReservations from './TripReservations';
+import TripPhotos from './TripPhotos';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -16,9 +17,11 @@ const VOTES = [
 export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
+  const [coverPhoto, setCoverPhoto] = useState(null);
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
+  const heroUrl = coverPhoto || img(trip.id);
 
   const handleVote = async (v) => {
     if (voting) return;
@@ -29,7 +32,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
   return <>
     <button className="btn secondary" onClick={goBack}>← Back</button>
 
-    <section className="detailHero" style={{backgroundImage:`url("${img(trip.id, trip.customPhoto)}")`}}>
+    <section className="detailHero" style={{backgroundImage:`url("${heroUrl}")`}}>
       <div>
         <p className="eyebrow">{trip.region} · {trip.subregion}</p>
         <h1>{trip.title}</h1>
@@ -95,7 +98,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
     {tab === 'food' && <FoodHotels trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'sports' && <Sports trip={trip} />}
     {tab === 'packing' && <PackingNotes trip={trip} shared={shared} updateShared={updateShared} />}
-    {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} />}
+    {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} setCoverPhoto={setCoverPhoto} />}
     {tab === 'personal' && <PersonalNotes trip={trip} personal={personal} updatePersonal={updatePersonal} />}
   </>
 }
@@ -176,17 +179,16 @@ function PackingNotes({ trip, shared, updateShared }) {
   </section>
 }
 
-function Memories({ trip, shared, updateShared }) {
-  return <section className="twoCol">
-    <section className="panel"><h2>Memories</h2><textarea value={shared.memories || ''} onChange={e=>updateShared(trip.id,{memories:e.target.value})} placeholder="Favorite moments, meals, photos, stories..." /></section>
-    <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>
-    <section className="panel"><h2>What Worked</h2><textarea value={shared.what_worked || ''} onChange={e=>updateShared(trip.id,{what_worked:e.target.value})} placeholder="Best decisions, favorite places, what to repeat..." /></section>
-    <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
-    <section className="panel tripPhotosComingSoon">
-      <h2>📸 Your Trip Photos</h2>
-      <p className="muted">Photo uploads are coming in a future sprint. You'll be able to upload your own photos here after each trip — they'll replace the placeholder images on the trip card and detail page.</p>
+function Memories({ trip, shared, updateShared, setCoverPhoto }) {
+  return <>
+    <TripPhotos tripId={trip.id} onCoverChange={setCoverPhoto} />
+    <section className="twoCol">
+      <section className="panel"><h2>Memories</h2><textarea value={shared.memories || ''} onChange={e=>updateShared(trip.id,{memories:e.target.value})} placeholder="Favorite moments, meals, photos, stories..." /></section>
+      <section className="panel"><h2>Post-Trip Summary</h2><textarea value={shared.post_trip_summary || ''} onChange={e=>updateShared(trip.id,{post_trip_summary:e.target.value})} placeholder="Overall trip recap..." /></section>
+      <section className="panel"><h2>What Worked</h2><textarea value={shared.what_worked || ''} onChange={e=>updateShared(trip.id,{what_worked:e.target.value})} placeholder="Best decisions, favorite places, what to repeat..." /></section>
+      <section className="panel"><h2>What We'd Change</h2><textarea value={shared.what_to_change || ''} onChange={e=>updateShared(trip.id,{what_to_change:e.target.value})} placeholder="What to do differently next time..." /></section>
     </section>
-  </section>
+  </>
 }
 
 function PersonalNotes({ trip, personal, updatePersonal }) {

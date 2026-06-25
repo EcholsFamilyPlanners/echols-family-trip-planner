@@ -556,3 +556,84 @@ export async function deleteReservation(id) {
   const { error } = await supabase.from('trip_reservations').delete().eq('id', id);
   if (error) throw error;
 }
+
+// ── Sprint 4A: Trip Photo Uploads ─────────────────────
+
+export async function loadTripPhotos(tripId) {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('trip_photos').select('*')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+    .order('created_at');
+  if (error) console.error(error);
+  return data || [];
+}
+
+export async function uploadTripPhoto({ tripId, file, caption, isCover, userId }) {
+  if (!isSupabaseConfigured) return;
+
+  const ext = file.name.split('.').pop();
+  const path = `${HOUSEHOLD_ID}/${tripId}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('trip-photos')
+    .upload(path, file, { upsert: false });
+
+  if (uploadError) throw uploadError;
+
+  const { data: urlData } = supabase.storage
+    .from('trip-photos')
+    .getPublicUrl(path);
+
+  // If setting as cover, unset any existing cover first
+  if (isCover) {
+    await supabase.from('trip_photos')
+      .update({ is_cover: false })
+      .eq('household_id', HOUSEHOLD_ID)
+      .eq('trip_id', tripId);
+  }
+
+  const { error: dbError } = await supabase.from('trip_photos').insert({
+    household_id: HOUSEHOLD_ID,
+    trip_id: tripId,
+    storage_path: path,
+    url: urlData.publicUrl,
+    caption: caption || '',
+    is_cover: !!isCover,
+    uploaded_by: userId || null,
+  });
+
+  if (dbError) throw dbError;
+  return urlData.publicUrl;
+}
+
+export async function setPhotoAsCover(photoId, tripId) {
+  if (!isSupabaseConfigured) return;
+  // Unset all covers for this trip
+  await supabase.from('trip_photos')
+    .update({ is_cover: false })
+    .eq('household_id', HOUSEHOLD_ID)
+    .eq('trip_id', tripId);
+  // Set new cover
+  const { error } = await supabase.from('trip_photos')
+    .update({ is_cover: true })
+    .eq('id', photoId);
+  if (error) throw error;
+}
+
+export async function deleteTripPhoto(photo) {
+  if (!isSupabaseConfigured) return;
+  // Delete from storage
+  await supabase.storage.from('trip-photos').remove([photo.storage_path]);
+  // Delete from db
+  const { error } = await supabase.from('trip_photos').delete().eq('id', photo.id);
+  if (error) throw error;
+}
+
+export async function updatePhotoCaption(photoId, caption) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('trip_photos')
+    .update({ caption })
+    .eq('id', photoId);
+  if (error) throw error;
+}

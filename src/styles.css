@@ -546,3 +546,109 @@
   .resCard { flex-direction:column; }
   .resCardRight { align-items:flex-start; }
 }
+
+/* ── Sprint 4A: Trip Photos ────────────────────────── */
+
+.photoPanel {}
+
+.photoHeader {
+  display:flex; align-items:flex-start;
+  justify-content:space-between; margin-bottom:1.25rem; gap:1rem;
+}
+.photoHeader h2 { margin:0; }
+.photoHeaderActions { display:flex; gap:.5rem; align-items:center; }
+
+.photoDropZone {
+  border:2px dashed var(--border,#e2e8f0);
+  border-radius:.75rem; padding:3rem 2rem;
+  text-align:center; cursor:pointer;
+  transition:border-color .15s, background .15s;
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+}
+.photoDropZone:hover { border-color:var(--gold,#c9a84c); background:var(--surface2,#f7f3ec); }
+.photoDropZone span { font-size:2.5rem; }
+.photoDropZone p { margin:0; font-weight:600; }
+.photoDropZone small { color:var(--muted,#718096); }
+
+.photoUploadGrid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+  gap:.75rem;
+}
+
+.photoThumb {
+  position:relative; border-radius:.5rem; overflow:hidden;
+  border:2px solid transparent;
+  transition:border-color .15s;
+  background:var(--surface2,#f7f3ec);
+}
+.photoThumb.isCover { border-color:var(--gold,#c9a84c); }
+.photoThumb img {
+  width:100%; height:130px; object-fit:cover;
+  display:block; cursor:pointer;
+  transition:opacity .15s;
+}
+.photoThumb img:hover { opacity:.9; }
+
+.coverBadge {
+  position:absolute; top:.4rem; left:.4rem;
+  background:var(--gold,#c9a84c); color:#fff;
+  font-size:.7rem; font-weight:700;
+  padding:.15rem .45rem; border-radius:1rem;
+}
+
+.photoThumbActions {
+  position:absolute; top:.4rem; right:.4rem;
+  display:flex; gap:.25rem; opacity:0;
+  transition:opacity .15s;
+}
+.photoThumb:hover .photoThumbActions { opacity:1; }
+
+.photoBtn {
+  background:rgba(0,0,0,.6); color:#fff;
+  border:none; border-radius:.35rem;
+  padding:.25rem .45rem; cursor:pointer;
+  font-size:.8rem; line-height:1;
+}
+.photoBtn:hover { background:rgba(0,0,0,.8); }
+.photoBtn.danger:hover { background:#dc2626; }
+
+.photoCaption {
+  padding:.3rem .5rem; font-size:.75rem;
+  color:var(--muted,#718096);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  margin:0;
+}
+
+/* Lightbox */
+.lightboxOverlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:1000; display:flex;
+  align-items:center; justify-content:center;
+  padding:1rem;
+}
+.lightbox {
+  background:var(--surface,#fff);
+  border-radius:.75rem; overflow:hidden;
+  max-width:800px; width:100%;
+  display:flex; flex-direction:column;
+}
+.lightbox img {
+  width:100%; max-height:60vh;
+  object-fit:contain; background:#000;
+}
+.lightboxFooter {
+  display:flex; gap:.5rem; padding:1rem;
+  align-items:center; flex-wrap:wrap;
+}
+.lightboxFooter input {
+  flex:1; padding:.45rem .6rem;
+  border:1px solid var(--border,#e2e8f0);
+  border-radius:.4rem; font-size:.9rem;
+  min-width:150px;
+}
+
+@media(max-width:600px){
+  .photoUploadGrid { grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); }
+}
