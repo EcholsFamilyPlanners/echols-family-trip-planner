@@ -1,3 +1,4 @@
+import React from 'react';
 import TripCard from './TripCard';
 
 function Metric({value,label}){return <div className="metric"><b>{value}</b><span>{label}</span></div>}
