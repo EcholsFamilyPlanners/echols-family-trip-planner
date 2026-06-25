@@ -3,7 +3,7 @@ import { loadTripShortlists, saveHotel, deleteHotel, saveRestaurant, deleteResta
 import { mapUrl } from '../utils/helpers';
 
 const BLANK_HOTEL = { name:'', neighborhood:'', price_per_night:'', stars:'', status:'Considering', url:'', notes:'' };
-const BLANK_REST  = { name:'', cuisine:'', price_range:'$$', must_try:false, url:'', notes:'' };
+const BLANK_REST  = { name:'', cuisine:'', price_range:'$$', must_try:false, health_rating:'', url:'', notes:'' };
 const STATUS_COLORS = { Considering:'', Shortlisted:'shortlisted', Booked:'booked' };
 
 export default function HotelShortlist({ tripId }) {
@@ -135,6 +135,17 @@ export default function HotelShortlist({ tripId }) {
                   {['$','$$','$$$','$$$$'].map(p=><option key={p}>{p}</option>)}
                 </select>
               </label>
+              <label>Health Dept Rating
+                <select value={restForm.health_rating} onChange={e=>setRestForm({...restForm,health_rating:e.target.value})}>
+                  <option value="">Not checked</option>
+                  <option value="A">A — Excellent</option>
+                  <option value="B">B — Good</option>
+                  <option value="C">C — Adequate</option>
+                  <option value="Pass">Pass</option>
+                  <option value="Fail">Fail</option>
+                  <option value="Unknown">Unknown</option>
+                </select>
+              </label>
               <label>Website / Link<input value={restForm.url} onChange={e=>setRestForm({...restForm,url:e.target.value})} placeholder="https://..."/></label>
             </div>
             <label className="toggle" style={{margin:'.5rem 0'}}>
@@ -167,6 +178,7 @@ export default function HotelShortlist({ tripId }) {
                 </div>
               </div>
               {r.cuisine && <p className="shortlistMeta">🍴 {r.cuisine}</p>}
+              {r.health_rating && <p className="shortlistMeta"><HealthBadge rating={r.health_rating}/></p>}
               {r.notes && <p className="shortlistNotes">{r.notes}</p>}
             </div>
           ))}
@@ -175,4 +187,11 @@ export default function HotelShortlist({ tripId }) {
 
     </div>
   );
+}
+
+
+function HealthBadge({ rating }) {
+  const map = { A:['#166534','#dcfce7'], B:['#1d4ed8','#dbeafe'], C:['#92400e','#fef3c7'], Pass:['#166534','#dcfce7'], Fail:['#dc2626','#fef2f2'], Unknown:['#6b7280','#f9fafb'] };
+  const [color, bg] = map[rating] || ['#6b7280','#f9fafb'];
+  return <span style={{ display:'inline-block', padding:'.1rem .5rem', borderRadius:'.4rem', fontSize:'.78rem', fontWeight:700, color, background:bg }}>🏥 Health: {rating}</span>;
 }

@@ -24,6 +24,7 @@ create table if not exists public.trip_restaurants (
   cuisine text default '',
   price_range text default '$$' check (price_range in ('$','$$','$$$','$$$$')),
   must_try boolean default false,
+  health_rating text default '',
   url text default '',
   notes text default '',
   created_at timestamptz not null default now(),
