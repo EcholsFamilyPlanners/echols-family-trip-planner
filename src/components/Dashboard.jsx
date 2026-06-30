@@ -69,6 +69,15 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
       </div>
 
       {tab === 'overview' && <>
+        {destinations.filter(d=>statusOf(d)==='Active').length > 0 && (
+          <div style={{marginBottom:'1.5rem'}}>
+            <h3>🔥 Active Trip{destinations.filter(d=>statusOf(d)==='Active').length>1?'s':''}</h3>
+            <p className="muted">Trips you're actively planning right now.</p>
+            <div className="miniGrid">
+              {destinations.filter(d=>statusOf(d)==='Active').map(t=><TripCard key={t.id} trip={t} status={statusOf(t)} favorite={favoriteOf(t)} vote={voteOf?voteOf(t):null} coverPhoto={coverPhotos?.[t.id]} destPhoto={destPhotos?.[t.id]} openTrip={openTrip} toggleFavorite={toggleFavorite}/>)}
+            </div>
+          </div>
+        )}
         {myLoved.length > 0 && (
           <div style={{marginTop:'1rem'}}>
             <h3>❤️ My Loved Trips</h3>

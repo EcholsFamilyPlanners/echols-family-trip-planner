@@ -50,7 +50,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
     <section className="panel">
       <div className="detailActions">
         <select value={status} onChange={e=>updateShared(trip.id,{status:e.target.value})}>
-          {['Idea','Considering','Top Pick','Bucket List','Planning','Booked','Visited'].map(x=><option key={x}>{x}</option>)}
+          {['Idea','Considering','Top Pick','Bucket List','Planning','Active','Booked','Visited'].map(x=><option key={x}>{x}</option>)}
         </select>
         <label className="toggle"><input type="checkbox" checked={favorite} onChange={e=>updatePersonal(trip.id,{favorite:e.target.checked})}/> My Favorite</label>
         <label className="toggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> My Wish List</label>
