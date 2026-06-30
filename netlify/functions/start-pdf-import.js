@@ -40,12 +40,17 @@ exports.handler = async function (event) {
     const [job] = await createRes.json();
 
     // Fire the background function — don't wait for it
-    const siteUrl = process.env.URL || `https://${event.headers.host}`;
-    fetch(`${siteUrl}/.netlify/functions/extract-trip-pdf-background`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobId: job.id, pdfBase64, fileName }),
-    }).catch(() => {}); // fire and forget
+    const siteUrl = 'https://echolstripplanner.netlify.app';
+    try {
+      const bgResponse = await fetch(`${siteUrl}/.netlify/functions/extract-trip-pdf-background`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: job.id, pdfBase64, fileName }),
+      });
+      console.log('Background function trigger status:', bgResponse.status);
+    } catch (triggerErr) {
+      console.error('Failed to trigger background function:', triggerErr.message);
+    }
 
     return { statusCode: 200, body: JSON.stringify({ jobId: job.id }) };
   } catch (err) {
