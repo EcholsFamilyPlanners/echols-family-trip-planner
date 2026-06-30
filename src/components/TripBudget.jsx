@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { loadTripBudget, saveTripBudgetTarget, saveBudgetItem, deleteBudgetItem } from '../services/travelOsService';
+import ReceiptScanner from './ReceiptScanner';
 
 const CATEGORIES = ['Flights','Hotel','Food & Dining','Activities','Car & Transport','Shopping','Other'];
 const BLANK_ITEM = { category:'Flights', label:'', estimated:'', actual:'', notes:'' };
@@ -73,7 +74,10 @@ export default function TripBudget({ tripId }) {
     <section className="panel budgetPanel">
       <div className="budgetHeader">
         <h2>💰 Trip Budget</h2>
-        <button className="btn gold" onClick={() => setForm({...BLANK_ITEM})}>+ Add Item</button>
+        <div style={{display:'flex',gap:'.5rem'}}>
+          <ReceiptScanner tripId={tripId} onSaved={load} />
+          <button className="btn gold" onClick={() => setForm({...BLANK_ITEM})}>+ Add Item</button>
+        </div>
       </div>
 
       {/* Target */}

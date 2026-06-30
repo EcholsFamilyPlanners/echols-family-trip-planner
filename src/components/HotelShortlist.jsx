@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { loadTripShortlists, saveHotel, deleteHotel, saveRestaurant, deleteRestaurant } from '../services/travelOsService';
 import { mapUrl } from '../utils/helpers';
 
-const BLANK_HOTEL = { name:'', neighborhood:'', price_per_night:'', stars:'', status:'Considering', url:'', notes:'' };
-const BLANK_REST  = { name:'', cuisine:'', price_range:'$$', must_try:false, health_rating:'', url:'', notes:'' };
+const BLANK_HOTEL = { name:'', neighborhood:'', price_per_night:'', stars:'', status:'Considering', url:'', notes:'', tip:'' };
+const BLANK_REST  = { name:'', cuisine:'', price_range:'$$', must_try:false, health_rating:'', url:'', notes:'', tip:'' };
 const STATUS_COLORS = { Considering:'', Shortlisted:'shortlisted', Booked:'booked' };
 
 export default function HotelShortlist({ tripId }) {
@@ -70,6 +70,7 @@ export default function HotelShortlist({ tripId }) {
               <label>Name *<input value={hotelForm.name} onChange={e=>setHotelForm({...hotelForm,name:e.target.value})} placeholder="e.g. Fairmont Le Château Frontenac"/></label>
               <label>Neighborhood<input value={hotelForm.neighborhood} onChange={e=>setHotelForm({...hotelForm,neighborhood:e.target.value})} placeholder="e.g. Old City"/></label>
               <label>Price / Night ($)<input type="number" value={hotelForm.price_per_night} onChange={e=>setHotelForm({...hotelForm,price_per_night:e.target.value})} placeholder="325"/></label>
+              <label>Tip ($)<input type="number" value={hotelForm.tip} onChange={e=>setHotelForm({...hotelForm,tip:e.target.value})} placeholder="Optional"/></label>
               <label>Stars
                 <select value={hotelForm.stars} onChange={e=>setHotelForm({...hotelForm,stars:e.target.value})}>
                   <option value="">—</option>
@@ -111,6 +112,7 @@ export default function HotelShortlist({ tripId }) {
               </div>
               {h.neighborhood && <p className="shortlistMeta">📍 {h.neighborhood}</p>}
               {h.price_per_night && <p className="shortlistMeta">💰 ${Number(h.price_per_night).toLocaleString()} / night</p>}
+              {h.tip && <p className="shortlistMeta">🤝 Tip: ${Number(h.tip).toLocaleString()}</p>}
               {h.notes && <p className="shortlistNotes">{h.notes}</p>}
             </div>
           ))}
@@ -147,6 +149,7 @@ export default function HotelShortlist({ tripId }) {
                 </select>
               </label>
               <label>Website / Link<input value={restForm.url} onChange={e=>setRestForm({...restForm,url:e.target.value})} placeholder="https://..."/></label>
+              <label>Tip ($)<input type="number" value={restForm.tip} onChange={e=>setRestForm({...restForm,tip:e.target.value})} placeholder="Optional"/></label>
             </div>
             <label className="toggle" style={{margin:'.5rem 0'}}>
               <input type="checkbox" checked={restForm.must_try} onChange={e=>setRestForm({...restForm,must_try:e.target.checked})}/> Must-Try
@@ -178,6 +181,7 @@ export default function HotelShortlist({ tripId }) {
                 </div>
               </div>
               {r.cuisine && <p className="shortlistMeta">🍴 {r.cuisine}</p>}
+              {r.tip && <p className="shortlistMeta">🤝 Tip: ${Number(r.tip).toLocaleString()}</p>}
               {r.health_rating && <p className="shortlistMeta"><HealthBadge rating={r.health_rating}/></p>}
               {r.notes && <p className="shortlistNotes">{r.notes}</p>}
             </div>

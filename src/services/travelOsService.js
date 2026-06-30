@@ -716,3 +716,16 @@ export async function pollPdfImportJob(jobId) {
   if (error) { console.error(error); return null; }
   return data;
 }
+
+// ── Receipt Scan Job Polling ──────────────────────────
+
+export async function pollReceiptScanJob(jobId) {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('receipt_scan_jobs')
+    .select('*')
+    .eq('id', jobId)
+    .single();
+  if (error) { console.error(error); return null; }
+  return data;
+}
