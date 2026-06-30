@@ -729,3 +729,66 @@ export async function pollReceiptScanJob(jobId) {
   if (error) { console.error(error); return null; }
   return data;
 }
+
+// ── Delete / Archive Trip ─────────────────────────────
+
+// Fully deletes a custom trip and all its related data permanently.
+export async function deleteCustomTrip(tripId) {
+  if (!isSupabaseConfigured) return;
+
+  // Delete all related rows across every table tied to this trip
+  const tables = [
+    'shared_trip_data', 'personal_trip_data', 'trip_votes',
+    'trip_hotels', 'trip_restaurants', 'trip_budget', 'trip_budget_items',
+    'trip_reservations', 'trip_photos', 'trip_journal',
+    'pdf_import_jobs', 'receipt_scan_jobs',
+  ];
+
+  for (const table of tables) {
+    const { error } = await supabase.from(table).delete()
+      .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId);
+    if (error) console.error(`Error deleting from ${table}:`, error);
+  }
+
+  // Delete trip photos from storage
+  try {
+    const { data: photos } = await supabase
+      .from('trip_photos').select('storage_path')
+      .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId);
+    if (photos?.length) {
+      await supabase.storage.from('trip-photos').remove(photos.map(p => p.storage_path));
+    }
+  } catch (e) { console.error('Error cleaning up photos:', e); }
+
+  // Finally delete the custom trip definition itself
+  const { error } = await supabase.from('custom_trips_v3').delete()
+    .eq('household_id', HOUSEHOLD_ID)
+    .filter('trip->>id', 'eq', tripId);
+  if (error) console.error('Error deleting custom trip:', error);
+}
+
+// Archives a built-in trip — hides it from view but keeps all data intact.
+export async function archiveTrip(tripId) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('archived_trips').upsert({
+    household_id: HOUSEHOLD_ID,
+    trip_id: tripId,
+  }, { onConflict: 'trip_id' });
+  if (error) throw error;
+}
+
+export async function unarchiveTrip(tripId) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('archived_trips')
+    .delete().eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId);
+  if (error) throw error;
+}
+
+export async function loadArchivedTrips() {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('archived_trips').select('trip_id')
+    .eq('household_id', HOUSEHOLD_ID);
+  if (error) { console.error(error); return []; }
+  return (data || []).map(r => r.trip_id);
+}

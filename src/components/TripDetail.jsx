@@ -8,6 +8,7 @@ import TripReservations from './TripReservations';
 import TripPhotos from './TripPhotos';
 import TripJournal from './TripJournal';
 import PdfImport from './PdfImport';
+import DeleteTripModal from './DeleteTripModal';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -16,10 +17,11 @@ const VOTES = [
   { value: 'pass',  label: '👋 Pass' },
 ];
 
-export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName }) {
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState(null);
+  const [showDelete, setShowDelete] = useState(false);
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
@@ -52,8 +54,18 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
         <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a>
         <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
         <PdfImport tripId={trip.id} sharedNotes={shared} onImported={async()=>{ if(typeof window!=='undefined') window.location.reload(); }} />
+        <button className="btn danger-outline" onClick={()=>setShowDelete(true)}>🗑️ {isCustom ? 'Delete' : 'Remove'} Trip</button>
       </div>
     </section>
+
+    {showDelete && (
+      <DeleteTripModal
+        trip={trip}
+        isCustom={isCustom}
+        onClose={()=>setShowDelete(false)}
+        onDeleted={async()=>{ if (onTripDeleted) await onTripDeleted(); goBack(); }}
+      />
+    )}
 
     <section className="panel votePanel">
       <h3>My Vote</h3>

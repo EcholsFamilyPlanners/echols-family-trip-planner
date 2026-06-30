@@ -876,3 +876,43 @@
 }
 .receiptRow:last-of-type { border-bottom:none; }
 .receiptRow span { color:var(--muted,#718096); }
+
+/* ── Delete Trip ───────────────────────────────────── */
+
+.deleteModal {
+  background:var(--surface,#fff); border-radius:.75rem;
+  max-width:480px; width:100%; padding:1.5rem;
+}
+.deleteModal h2 { margin:0 0 1rem; color:#dc2626; }
+.deleteModal p { margin:0 0 .75rem; line-height:1.6; }
+
+.deleteWarningList {
+  margin:0 0 1rem; padding-left:1.25rem;
+  color:var(--muted,#718096); font-size:.92rem;
+}
+.deleteWarningList li { margin-bottom:.25rem; }
+
+.deleteWarning {
+  color:#dc2626; font-weight:700;
+}
+
+.deleteConfirmInput {
+  width:100%; padding:.6rem .8rem;
+  border:2px solid #dc2626; border-radius:.5rem;
+  font-size:1rem; box-sizing:border-box;
+  margin-top:.5rem;
+}
+
+.btn.danger-outline {
+  color:#dc2626; border:1px solid #fca5a5;
+  background:transparent;
+}
+.btn.danger-outline:hover { background:#fef2f2; }
+
+.btn.danger-solid {
+  background:#dc2626; color:#fff; border:none;
+  padding:.55rem 1.2rem; border-radius:.5rem;
+  cursor:pointer; font-weight:600;
+}
+.btn.danger-solid:hover { background:#b91c1c; }
+.btn.danger-solid:disabled { background:#fca5a5; cursor:not-allowed; }

@@ -17,7 +17,7 @@ import { Budget, PackingManager, SportsTracker, Journal } from './components/Too
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
   saveSharedTripPatch, savePersonalTripPatch, saveTripVote, saveTogetherNotes,
-  addCustomTrip as saveCustomTrip, ensureHouseholdMember, loadAllCoverPhotos, loadJournalCounts
+  addCustomTrip as saveCustomTrip, ensureHouseholdMember, loadAllCoverPhotos, loadJournalCounts, loadArchivedTrips
 } from './services/travelOsService';
 import './styles.css';
 
@@ -39,8 +39,9 @@ function App(){
   const [togetherNotes,setTogetherNotesState]=useState('');
   const [coverPhotos,setCoverPhotos]=useState({});
   const [journalCounts,setJournalCounts]=useState({});
+  const [archivedIds,setArchivedIds]=useState([]);
   const [ideaInbox,setIdeaInboxState]=useState(loadIdeaInbox);
-  const destinations=useMemo(()=>[...seedDestinations,...customTrips],[customTrips]);
+  const destinations=useMemo(()=>[...seedDestinations,...customTrips].filter(d=>!archivedIds.includes(d.id)),[customTrips,archivedIds]);
 
   // Derive actor name from session
   const actorName = useMemo(() => {
@@ -68,6 +69,8 @@ function App(){
     setCoverPhotos(covers);
     const jCounts = await loadJournalCounts();
     setJournalCounts(jCounts);
+    const archived = await loadArchivedTrips();
+    setArchivedIds(archived);
   };
 
   useEffect(()=>{
@@ -124,7 +127,7 @@ function App(){
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} coverPhotos={coverPhotos} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
-    {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash} actorName={actorName}/>}
+    {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash} actorName={actorName} isCustom={customTrips.some(t=>t.id===selected.id)} onTripDeleted={refresh}/>}
     {view==='wishlist'&&<WishLists destinations={destinations} personalTripData={personalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} updatePersonal={updatePersonal}/>}
     {view==='finder'&&<DecisionEngine destinations={destinations} myVotes={myVotes} allVotes={allVotes} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='budget'&&<Budget/>}
