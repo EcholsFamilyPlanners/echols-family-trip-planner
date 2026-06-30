@@ -10,6 +10,7 @@ import TripJournal from './TripJournal';
 import PdfImport from './PdfImport';
 import DeleteTripModal from './DeleteTripModal';
 import MergeTripsModal from './MergeTripsModal';
+import ItineraryBuilder from './ItineraryBuilder';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -162,13 +163,15 @@ function Planning({ trip, shared, updateShared }) {
 
 function Itinerary({ trip, shared, updateShared }) {
   return <>
+    <ItineraryBuilder tripId={trip.id} />
     <section className="panel">
-      <h2>Sample Itinerary</h2>
+      <h2>Sample Itinerary (Reference)</h2>
+      <p className="muted">Suggested itinerary from the destination guide — use it for inspiration when building your day-by-day plan above.</p>
       <ol>{trip.itinerary?.map((x,i)=><li key={i}><b>Day {i+1}:</b> {x.replace(/^Day \d+:\s*/,'')}</li>)}</ol>
     </section>
     <section className="panel">
-      <h2>Custom Itinerary Notes</h2>
-      <textarea value={shared.itinerary_notes || ''} onChange={e=>updateShared(trip.id,{itinerary_notes:e.target.value})} placeholder="Build your actual day-by-day plan here..." />
+      <h2>General Itinerary Notes</h2>
+      <textarea value={shared.itinerary_notes || ''} onChange={e=>updateShared(trip.id,{itinerary_notes:e.target.value})} placeholder="Overall pacing notes, things to keep in mind, alternate plans..." />
     </section>
   </>
 }

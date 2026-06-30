@@ -987,3 +987,121 @@ export async function loadAllBudgetItems() {
   if (error) { console.error(error); return []; }
   return data || [];
 }
+
+// ── Structured Itinerary Builder ──────────────────────
+
+export async function loadItinerary(tripId) {
+  if (!isSupabaseConfigured) return { days: [], stopsByDay: {} };
+  const { data: days, error: dayErr } = await supabase
+    .from('itinerary_days').select('*')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+    .order('day_number');
+  if (dayErr) console.error(dayErr);
+
+  const { data: stops, error: stopErr } = await supabase
+    .from('itinerary_stops').select('*')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+    .order('sort_order');
+  if (stopErr) console.error(stopErr);
+
+  const stopsByDay = {};
+  (stops || []).forEach(s => {
+    if (!stopsByDay[s.day_id]) stopsByDay[s.day_id] = [];
+    stopsByDay[s.day_id].push(s);
+  });
+
+  return { days: days || [], stopsByDay };
+}
+
+export async function setItineraryDayCount(tripId, count) {
+  if (!isSupabaseConfigured) return;
+  const { data: existing } = await supabase
+    .from('itinerary_days').select('day_number')
+    .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId);
+
+  const existingNumbers = new Set((existing || []).map(d => d.day_number));
+
+  // Add missing days
+  const toAdd = [];
+  for (let i = 1; i <= count; i++) {
+    if (!existingNumbers.has(i)) {
+      toAdd.push({ household_id: HOUSEHOLD_ID, trip_id: tripId, day_number: i, title: `Day ${i}`, sort_order: i });
+    }
+  }
+  if (toAdd.length) {
+    const { error } = await supabase.from('itinerary_days').insert(toAdd);
+    if (error) throw error;
+  }
+
+  // Remove days beyond the new count (cascades to stops automatically)
+  const { error: delError } = await supabase.from('itinerary_days')
+    .delete().eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId).gt('day_number', count);
+  if (delError) console.error(delError);
+}
+
+export async function updateItineraryDay(dayId, patch) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('itinerary_days').update(patch).eq('id', dayId);
+  if (error) throw error;
+}
+
+export async function saveItineraryStop(stop) {
+  if (!isSupabaseConfigured) return;
+  const payload = { ...stop, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };
+  if (stop.id) {
+    const { error } = await supabase.from('itinerary_stops').update(payload).eq('id', stop.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('itinerary_stops').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteItineraryStop(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('itinerary_stops').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// Sync all itinerary stop costs into the trip's budget as a single "Itinerary" line item per day
+export async function syncItineraryToBudget(tripId, days, stopsByDay) {
+  if (!isSupabaseConfigured) return;
+
+  for (const day of days) {
+    const stops = stopsByDay[day.id] || [];
+    const dayTotal = stops.reduce((sum, s) => sum + (Number(s.cost) || 0), 0);
+
+    // Find existing budget item for this day (tagged via notes marker)
+    const marker = `[itinerary-day-${day.day_number}]`;
+    const { data: existing } = await supabase
+      .from('trip_budget_items').select('*')
+      .eq('household_id', HOUSEHOLD_ID).eq('trip_id', tripId)
+      .ilike('notes', `%${marker}%`)
+      .maybeSingle();
+
+    if (dayTotal === 0) {
+      // Remove the line item if no stops have cost
+      if (existing) {
+        await supabase.from('trip_budget_items').delete().eq('id', existing.id);
+      }
+      continue;
+    }
+
+    const payload = {
+      household_id: HOUSEHOLD_ID,
+      trip_id: tripId,
+      category: 'Activities',
+      label: `${day.title || `Day ${day.day_number}`} — Itinerary`,
+      estimated: dayTotal,
+      actual: existing?.actual ?? null,
+      notes: marker,
+      sort_order: 500 + day.day_number,
+    };
+
+    if (existing) {
+      await supabase.from('trip_budget_items').update(payload).eq('id', existing.id);
+    } else {
+      await supabase.from('trip_budget_items').insert(payload);
+    }
+  }
+}
