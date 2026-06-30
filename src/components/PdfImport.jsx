@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { saveHotel, saveRestaurant, saveBudgetItem, saveSharedTripPatch } from '../services/travelOsService';
+import { saveHotel, saveRestaurant, saveBudgetItem, saveSharedTripPatch, pollPdfImportJob } from '../services/travelOsService';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -10,6 +10,8 @@ function fileToBase64(file) {
   });
 }
 
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
 export default function PdfImport({ tripId, sharedNotes, onImported }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,6 +19,8 @@ export default function PdfImport({ tripId, sharedNotes, onImported }) {
   const [error, setError] = useState('');
   const [selections, setSelections] = useState({});
   const fileRef = useRef();
+
+  const [progress, setProgress] = useState('');
 
   const handleFile = async (file) => {
     if (!file) return;
@@ -26,32 +30,56 @@ export default function PdfImport({ tripId, sharedNotes, onImported }) {
     setLoading(true);
     setError('');
     setExtracted(null);
+    setProgress('Uploading document...');
 
     try {
       const base64 = await fileToBase64(file);
-      const res = await fetch('/.netlify/functions/extract-trip-pdf', {
+
+      setProgress('Starting analysis...');
+      const startRes = await fetch('/.netlify/functions/start-pdf-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfBase64: base64, fileName: file.name }),
+        body: JSON.stringify({ tripId, pdfBase64: base64, fileName: file.name }),
       });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error + (data.details ? `: ${data.details}` : ''));
-      } else {
-        setExtracted(data);
-        // Pre-select everything found
+      const startData = await startRes.json();
+
+      if (startData.error) {
+        setError(startData.error);
+        setLoading(false);
+        return;
+      }
+
+      const jobId = startData.jobId;
+      setProgress('Reading your document with AI...');
+
+      // Poll for completion — up to ~2 minutes
+      let attempts = 0;
+      let result = null;
+      while (attempts < 40) {
+        await sleep(3000);
+        const job = await pollPdfImportJob(jobId);
+        if (job?.status === 'complete') { result = job.result; break; }
+        if (job?.status === 'error') { setError(job.error_message || 'Something went wrong processing the PDF.'); break; }
+        attempts++;
+      }
+
+      if (result) {
+        setExtracted(result);
         const sel = {
-          hotels: (data.hotels || []).map(() => true),
-          restaurants: (data.restaurants || []).map(() => true),
-          budget_items: (data.budget_items || []).map(() => true),
+          hotels: (result.hotels || []).map(() => true),
+          restaurants: (result.restaurants || []).map(() => true),
+          budget_items: (result.budget_items || []).map(() => true),
           notes: true,
         };
         setSelections(sel);
+      } else if (!error) {
+        setError('This is taking longer than expected. Please try again with a smaller PDF.');
       }
     } catch (e) {
       setError('Something went wrong reading the PDF: ' + e.message);
     } finally {
       setLoading(false);
+      setProgress('');
       if (fileRef.current) fileRef.current.value = '';
     }
   };
@@ -169,8 +197,8 @@ export default function PdfImport({ tripId, sharedNotes, onImported }) {
 
         {loading && (
           <div className="pdfImportLoading">
-            <p>Reading your document...</p>
-            <small className="muted">This usually takes 10-20 seconds.</small>
+            <p>{progress || 'Reading your document...'}</p>
+            <small className="muted">This can take up to a minute for longer documents.</small>
           </div>
         )}
 

@@ -703,3 +703,16 @@ export async function loadJournalCounts() {
   });
   return counts;
 }
+
+// ── PDF Import Job Polling ────────────────────────────
+
+export async function pollPdfImportJob(jobId) {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('pdf_import_jobs')
+    .select('*')
+    .eq('id', jobId)
+    .single();
+  if (error) { console.error(error); return null; }
+  return data;
+}
