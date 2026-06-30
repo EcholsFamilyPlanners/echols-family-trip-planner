@@ -155,31 +155,6 @@ export default function People({ householdMembers, session, refresh, destination
     </>
   );
 }
-  const [draft, setDraft] = useState({
-    ...member,
-    display_name: member.display_name || '',
-    nickname: member.nickname || '',
-    email: member.email || '',
-    role: member.role || 'member',
-    is_active: member.is_active !== false
-  });
-
-  return (
-    <>
-      <h2>Edit Person</h2>
-      <div className="peopleForm">
-        <label>Display Name<input value={draft.display_name} onChange={e=>setDraft({...draft,display_name:e.target.value})}/></label>
-        <label>Nickname<input value={draft.nickname} onChange={e=>setDraft({...draft,nickname:e.target.value})}/></label>
-        <label>Email<input value={draft.email} onChange={e=>setDraft({...draft,email:e.target.value})}/></label>
-        <label>Role<input value={draft.role} onChange={e=>setDraft({...draft,role:e.target.value})}/></label>
-      </div>
-      <div className="actions">
-        <button className="btn gold" onClick={()=>save(draft)}>Save</button>
-        <button className="btn secondary" onClick={cancel}>Cancel</button>
-      </div>
-    </>
-  );
-}
 
 function EditMember({ member, save, cancel }) {
   const [draft, setDraft] = useState({
