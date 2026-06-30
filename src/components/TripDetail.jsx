@@ -7,6 +7,7 @@ import TripBudget from './TripBudget';
 import TripReservations from './TripReservations';
 import TripPhotos from './TripPhotos';
 import TripJournal from './TripJournal';
+import PdfImport from './PdfImport';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -50,6 +51,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
         <label className="toggle"><input type="checkbox" checked={!!personal.wish_list || !!personal.want_to_visit} onChange={e=>updatePersonal(trip.id,{wish_list:e.target.checked,want_to_visit:e.target.checked})}/> My Wish List</label>
         <a className="btn" href={mapUrl(trip.title)} target="_blank"><MapPin size={18}/> Map</a>
         <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
+        <PdfImport tripId={trip.id} sharedNotes={shared} onImported={async()=>{ if(typeof window!=='undefined') window.location.reload(); }} />
       </div>
     </section>
 
