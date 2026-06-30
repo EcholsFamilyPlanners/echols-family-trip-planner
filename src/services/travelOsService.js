@@ -792,3 +792,111 @@ export async function loadArchivedTrips() {
   if (error) { console.error(error); return []; }
   return (data || []).map(r => r.trip_id);
 }
+
+// ── Merge Trips ────────────────────────────────────────
+
+// Merges sourceTripId INTO targetTripId. All hotels, restaurants, budget items,
+// reservations, photos, and journal entries from source move to target.
+// Shared notes/personal data from source are appended to target's if target's are empty,
+// or kept as target's if target already has data (target wins on conflicts).
+// Source trip is then deleted (if custom) or archived (if built-in).
+export async function mergeTrips(sourceTripId, targetTripId, sourceIsCustom) {
+  if (!isSupabaseConfigured) return;
+
+  // Move child rows from source to target across every related table
+  const tables = [
+    'trip_hotels', 'trip_restaurants', 'trip_budget_items',
+    'trip_reservations', 'trip_photos', 'trip_journal', 'trip_votes',
+  ];
+  for (const table of tables) {
+    const { error } = await supabase.from(table)
+      .update({ trip_id: targetTripId })
+      .eq('household_id', HOUSEHOLD_ID)
+      .eq('trip_id', sourceTripId);
+    if (error) console.error(`Error moving ${table}:`, error);
+  }
+
+  // Merge shared_trip_data text fields — append source's content to target's
+  const { data: sourceShared } = await supabase.from('shared_trip_data')
+    .select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', sourceTripId).maybeSingle();
+  const { data: targetShared } = await supabase.from('shared_trip_data')
+    .select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', targetTripId).maybeSingle();
+
+  if (sourceShared) {
+    const mergeField = (key) => {
+      const s = sourceShared[key] || '';
+      const t = targetShared?.[key] || '';
+      if (!s) return t;
+      if (!t) return s;
+      return `${t}\n\n--- Merged from other trip ---\n${s}`;
+    };
+
+    const mergedPayload = {
+      household_id: HOUSEHOLD_ID,
+      trip_id: targetTripId,
+      status: targetShared?.status || sourceShared.status || 'Idea',
+      shared_notes: mergeField('shared_notes'),
+      ideas: mergeField('ideas'),
+      restaurant_notes: mergeField('restaurant_notes'),
+      memories: mergeField('memories'),
+      packing: mergeField('packing'),
+      budget_notes: mergeField('budget_notes'),
+      itinerary_notes: mergeField('itinerary_notes'),
+      hotel_notes: mergeField('hotel_notes'),
+      flight_notes: mergeField('flight_notes'),
+      reservation_notes: mergeField('reservation_notes'),
+      map_notes: mergeField('map_notes'),
+      document_notes: mergeField('document_notes'),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from('shared_trip_data')
+      .upsert(mergedPayload, { onConflict: 'household_id,trip_id' });
+    if (error) console.error('Error merging shared data:', error);
+  }
+
+  // Merge personal_trip_data per user — keep target's row, but carry over wish_list flag if source had it
+  const { data: sourcePersonalRows } = await supabase.from('personal_trip_data')
+    .select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', sourceTripId);
+
+  for (const row of sourcePersonalRows || []) {
+    const { data: targetRow } = await supabase.from('personal_trip_data')
+      .select('*').eq('household_id', HOUSEHOLD_ID).eq('trip_id', targetTripId).eq('user_id', row.user_id).maybeSingle();
+
+    const merged = {
+      household_id: HOUSEHOLD_ID,
+      user_id: row.user_id,
+      trip_id: targetTripId,
+      favorite: targetRow?.favorite || row.favorite,
+      want_to_visit: targetRow?.want_to_visit || row.want_to_visit,
+      wish_list: targetRow?.wish_list || row.wish_list,
+      wish_rank: targetRow?.wish_rank || row.wish_rank,
+      personal_rating: targetRow?.personal_rating || row.personal_rating,
+      personal_notes: [targetRow?.personal_notes, row.personal_notes].filter(Boolean).join('\n\n'),
+      dream_reason: [targetRow?.dream_reason, row.dream_reason].filter(Boolean).join('\n\n'),
+      must_do: [targetRow?.must_do, row.must_do].filter(Boolean).join('\n\n'),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from('personal_trip_data')
+      .upsert(merged, { onConflict: 'household_id,user_id,trip_id' });
+    if (error) console.error('Error merging personal data:', error);
+  }
+
+  // Clean up source's now-empty shared/personal rows
+  await supabase.from('shared_trip_data').delete().eq('household_id', HOUSEHOLD_ID).eq('trip_id', sourceTripId);
+  await supabase.from('personal_trip_data').delete().eq('household_id', HOUSEHOLD_ID).eq('trip_id', sourceTripId);
+
+  // Remove the source trip itself
+  if (sourceIsCustom) {
+    const { error } = await supabase.from('custom_trips_v3').delete()
+      .eq('household_id', HOUSEHOLD_ID)
+      .filter('trip->>id', 'eq', sourceTripId);
+    if (error) console.error('Error deleting merged source trip:', error);
+  } else {
+    await supabase.from('archived_trips').upsert({
+      household_id: HOUSEHOLD_ID,
+      trip_id: sourceTripId,
+    }, { onConflict: 'trip_id' });
+  }
+}

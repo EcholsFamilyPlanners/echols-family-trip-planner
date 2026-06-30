@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
-import { createHouseholdMemberByEmail, saveHouseholdMember } from '../services/travelOsService';
+import { createHouseholdMemberByEmail, saveHouseholdMember, unarchiveTrip } from '../services/travelOsService';
 
-export default function People({ householdMembers, session, refresh }) {
+export default function People({ householdMembers, session, refresh, destinations, archivedIds, allDestinations }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ email:'', display_name:'', nickname:'' });
+  const [restoring, setRestoring] = useState(null);
 
   const save = async (member) => {
     await saveHouseholdMember(member);
@@ -18,6 +19,18 @@ export default function People({ householdMembers, session, refresh }) {
     setForm({ email:'', display_name:'', nickname:'' });
     await refresh();
   };
+
+  const restore = async (tripId) => {
+    setRestoring(tripId);
+    try {
+      await unarchiveTrip(tripId);
+      await refresh();
+    } finally {
+      setRestoring(null);
+    }
+  };
+
+  const archivedTrips = (allDestinations || []).filter(d => (archivedIds || []).includes(d.id));
 
   return (
     <>
@@ -54,6 +67,28 @@ export default function People({ householdMembers, session, refresh }) {
           <input value={form.nickname} onChange={e=>setForm({...form,nickname:e.target.value})} placeholder="Nickname" />
           <button className="btn gold" onClick={addPlaceholder}>Add Person</button>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>🗄️ Archived Trips</h2>
+        <p className="muted">Built-in trips you removed from your library. Your notes, votes, and photos for these are safe and waiting if you want them back.</p>
+        {archivedTrips.length === 0 ? (
+          <p className="muted">No archived trips.</p>
+        ) : (
+          <div className="archivedList">
+            {archivedTrips.map(trip => (
+              <div className="archivedRow" key={trip.id}>
+                <div>
+                  <b>{trip.title}</b>
+                  <span className="muted"> · {trip.region}</span>
+                </div>
+                <button className="btn gold small" onClick={()=>restore(trip.id)} disabled={restoring===trip.id}>
+                  {restoring===trip.id ? 'Restoring...' : 'Restore'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </>
   );

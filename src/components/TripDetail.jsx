@@ -9,6 +9,7 @@ import TripPhotos from './TripPhotos';
 import TripJournal from './TripJournal';
 import PdfImport from './PdfImport';
 import DeleteTripModal from './DeleteTripModal';
+import MergeTripsModal from './MergeTripsModal';
 
 const VOTES = [
   { value: 'love',  label: '❤️ Love' },
@@ -17,11 +18,12 @@ const VOTES = [
   { value: 'pass',  label: '👋 Pass' },
 ];
 
-export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted }) {
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted, allDestinations, customTrips }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
+  const [showMerge, setShowMerge] = useState(false);
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
@@ -55,6 +57,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
         <button className="btn gold" onClick={()=>window.print()}><Printer size={18}/> Print</button>
         <PdfImport tripId={trip.id} sharedNotes={shared} onImported={async()=>{ if(typeof window!=='undefined') window.location.reload(); }} />
         <button className="btn danger-outline" onClick={()=>setShowDelete(true)}>🗑️ {isCustom ? 'Delete' : 'Remove'} Trip</button>
+        <button className="btn secondary" onClick={()=>setShowMerge(true)}>🔗 Merge with Another Trip</button>
       </div>
     </section>
 
@@ -64,6 +67,16 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
         isCustom={isCustom}
         onClose={()=>setShowDelete(false)}
         onDeleted={async()=>{ if (onTripDeleted) await onTripDeleted(); goBack(); }}
+      />
+    )}
+
+    {showMerge && (
+      <MergeTripsModal
+        trip={trip}
+        allDestinations={allDestinations || []}
+        customTrips={customTrips || []}
+        onClose={()=>setShowMerge(false)}
+        onMerged={async()=>{ if (onTripDeleted) await onTripDeleted(); goBack(); }}
       />
     )}
 

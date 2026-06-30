@@ -41,7 +41,8 @@ function App(){
   const [journalCounts,setJournalCounts]=useState({});
   const [archivedIds,setArchivedIds]=useState([]);
   const [ideaInbox,setIdeaInboxState]=useState(loadIdeaInbox);
-  const destinations=useMemo(()=>[...seedDestinations,...customTrips].filter(d=>!archivedIds.includes(d.id)),[customTrips,archivedIds]);
+  const allDestinations=useMemo(()=>[...seedDestinations,...customTrips],[customTrips]);
+  const destinations=useMemo(()=>allDestinations.filter(d=>!archivedIds.includes(d.id)),[allDestinations,archivedIds]);
 
   // Derive actor name from session
   const actorName = useMemo(() => {
@@ -123,11 +124,11 @@ function App(){
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
     {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} journalCounts={journalCounts} sharedTripData={sharedTripData} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
-    {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh}/>}
+    {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh} archivedIds={archivedIds} allDestinations={allDestinations}/>}
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} coverPhotos={coverPhotos} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='compare'&&<TripCompare destinations={destinations} sharedTripData={sharedTripData} personalTripData={personalTripData} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
-    {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash} actorName={actorName} isCustom={customTrips.some(t=>t.id===selected.id)} onTripDeleted={refresh}/>}
+    {view==='detail'&&selected&&<TripDetail trip={selected} shared={sharedTripData[selected.id]||{}} personal={personalTripData[selected.id]||{}} myVote={voteOf(selected)} castVote={castVote} updateShared={updateShared} updatePersonal={updatePersonal} goBack={goDash} actorName={actorName} isCustom={customTrips.some(t=>t.id===selected.id)} onTripDeleted={refresh} allDestinations={allDestinations} customTrips={customTrips}/>}
     {view==='wishlist'&&<WishLists destinations={destinations} personalTripData={personalTripData} sharedTripData={sharedTripData} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite} updatePersonal={updatePersonal}/>}
     {view==='finder'&&<DecisionEngine destinations={destinations} myVotes={myVotes} allVotes={allVotes} allPersonalTripData={allPersonalTripData} householdMembers={householdMembers} statusOf={statusOf} openTrip={openTrip}/>}
     {view==='budget'&&<Budget/>}

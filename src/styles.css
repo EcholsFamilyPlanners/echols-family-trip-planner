@@ -916,3 +916,55 @@
 }
 .btn.danger-solid:hover { background:#b91c1c; }
 .btn.danger-solid:disabled { background:#fca5a5; cursor:not-allowed; }
+
+/* ── Merge Trips ───────────────────────────────────── */
+
+.mergeSearchInput {
+  width:100%; padding:.6rem .8rem;
+  border:1px solid var(--border,#e2e8f0); border-radius:.5rem;
+  font-size:.95rem; box-sizing:border-box; margin-top:.75rem;
+}
+
+.mergeResults {
+  margin-top:.5rem; display:flex; flex-direction:column; gap:.3rem;
+  max-height:280px; overflow-y:auto;
+}
+.mergeResultRow {
+  text-align:left; padding:.6rem .75rem;
+  border:1px solid var(--border,#e2e8f0); border-radius:.5rem;
+  background:var(--surface,#fff); cursor:pointer;
+}
+.mergeResultRow:hover { background:var(--surface2,#f7f3ec); }
+
+.mergeSelectedTrip {
+  background:var(--surface2,#f7f3ec); padding:.6rem .9rem;
+  border-radius:.5rem; margin-top:.75rem; font-size:.92rem;
+}
+
+.mergeDirectionOptions {
+  display:flex; flex-direction:column; gap:.6rem; margin-top:.75rem;
+}
+.mergeDirectionBtn {
+  display:flex; flex-direction:column; gap:.2rem;
+  text-align:left; padding:.9rem 1rem;
+  border:2px solid var(--border,#e2e8f0); border-radius:.6rem;
+  background:var(--surface,#fff); cursor:pointer;
+}
+.mergeDirectionBtn:hover { border-color:var(--gold,#c9a84c); }
+.mergeDirectionBtn b { font-size:.95rem; }
+.mergeDirectionBtn span { font-size:.82rem; }
+
+.mergeSummary {
+  background:var(--surface2,#f7f3ec); padding:1rem;
+  border-radius:.5rem; margin-top:.75rem;
+}
+.mergeSummary p { margin:0 0 .4rem; font-size:.9rem; }
+.mergeSummary p:last-child { margin-bottom:0; }
+
+/* Archived trips list */
+.archivedList { display:flex; flex-direction:column; gap:.4rem; }
+.archivedRow {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.6rem .75rem; border-radius:.5rem;
+  background:var(--surface2,#f7f3ec);
+}
