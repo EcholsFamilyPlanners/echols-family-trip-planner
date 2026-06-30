@@ -1,5 +1,7 @@
 // Netlify Function: start-receipt-scan
-// Fast synchronous function — creates a job row, triggers background processing.
+// Receives a small image URL (already uploaded to Supabase Storage by the
+// frontend), creates a job row, and triggers the background function with
+// just the URL — keeping the payload tiny and well under Netlify's limits.
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -10,9 +12,9 @@ exports.handler = async function (event) {
   }
 
   try {
-    const { tripId, imageBase64, mediaType } = JSON.parse(event.body);
-    if (!tripId || !imageBase64) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Missing tripId or imageBase64.' }) };
+    const { tripId, imageUrl } = JSON.parse(event.body);
+    if (!tripId || !imageUrl) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'Missing tripId or imageUrl.' }) };
     }
 
     const createRes = await fetch(`${SUPABASE_URL}/rest/v1/receipt_scan_jobs`, {
@@ -42,7 +44,7 @@ exports.handler = async function (event) {
       const bgResponse = await fetch(`${siteUrl}/.netlify/functions/extract-receipt-background`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId: job.id, imageBase64, mediaType }),
+        body: JSON.stringify({ jobId: job.id, imageUrl }),
       });
       console.log('Background trigger status:', bgResponse.status);
     } catch (triggerErr) {

@@ -1,5 +1,7 @@
 // Netlify Background Function: extract-receipt-background
-// Does the slow AI work and writes the result into Supabase.
+// Receives a small image URL (not raw bytes), fetches the image itself,
+// then sends it to Claude. This keeps the background trigger payload tiny,
+// well under Netlify's 256KB background function payload limit.
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -17,6 +19,14 @@ async function supabaseRequest(path, options = {}) {
   });
 }
 
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+  return Buffer.from(binary, 'binary').toString('base64');
+}
+
 exports.handler = async function (event) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   let jobId;
@@ -24,11 +34,24 @@ exports.handler = async function (event) {
   try {
     const body = JSON.parse(event.body);
     jobId = body.jobId;
-    const { imageBase64, mediaType } = body;
+    const { imageUrl } = body;
 
-    if (!apiKey || !jobId || !imageBase64) {
+    if (!apiKey || !jobId || !imageUrl) {
       return { statusCode: 200, body: '' };
     }
+
+    // Fetch the actual image bytes from Supabase Storage
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) {
+      await supabaseRequest(`receipt_scan_jobs?id=eq.${jobId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'error', error_message: 'Could not fetch uploaded image.', updated_at: new Date().toISOString() }),
+      });
+      return { statusCode: 200, body: '' };
+    }
+    const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+    const imgBuffer = await imgRes.arrayBuffer();
+    const imageBase64 = arrayBufferToBase64(imgBuffer);
 
     const systemPrompt = `You are a receipt scanner. You will be given a photo of a receipt. Extract the details and return ONLY valid JSON in this exact shape, with no markdown formatting, no code fences, and no extra commentary:
 
@@ -63,7 +86,7 @@ Rules:
           {
             role: 'user',
             content: [
-              { type: 'image', source: { type: 'base64', media_type: mediaType || 'image/jpeg', data: imageBase64 } },
+              { type: 'image', source: { type: 'base64', media_type: contentType, data: imageBase64 } },
               { type: 'text', text: 'Extract the receipt details. Return only the JSON object.' },
             ],
           },
