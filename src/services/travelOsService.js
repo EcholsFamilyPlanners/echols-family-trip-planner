@@ -975,3 +975,15 @@ export async function sendPhotoToFrames(frameEmails, photoUrl, caption, tripTitl
   if (data.error) throw new Error(data.error);
   return data.results;
 }
+
+// ── Master Spending Dashboard ─────────────────────────
+
+export async function loadAllBudgetItems() {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('trip_budget_items')
+    .select('*')
+    .eq('household_id', HOUSEHOLD_ID);
+  if (error) { console.error(error); return []; }
+  return data || [];
+}

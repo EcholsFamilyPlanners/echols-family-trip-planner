@@ -981,3 +981,91 @@
 }
 
 /* Check-in/out resv display already uses resMeta, no extra CSS needed */
+
+/* ── Spending Chart & Dashboard ────────────────────── */
+
+.spendChartPanel {
+  background:var(--surface2,#f7f3ec);
+  border-radius:.6rem; padding:1.25rem;
+}
+.spendChartPanel h3 { margin:0 0 1rem; font-size:1rem; }
+
+.spendChart { display:flex; flex-direction:column; gap:.9rem; }
+
+.spendChartRow {
+  display:grid;
+  grid-template-columns:140px 1fr 100px;
+  align-items:center; gap:.75rem;
+}
+
+.spendChartLabel {
+  display:flex; align-items:center; gap:.4rem;
+  font-size:.85rem; font-weight:600;
+}
+.spendChartDot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+.spendChartBars { display:flex; flex-direction:column; gap:.2rem; }
+.spendChartBarTrack {
+  height:10px; background:var(--border,#e2e8f0);
+  border-radius:5px; overflow:hidden;
+}
+.spendChartBar { height:100%; border-radius:5px; transition:width .4s; }
+
+.spendChartValue {
+  text-align:right; font-size:.85rem; font-weight:700;
+  white-space:nowrap;
+}
+
+.spendEmpty {
+  text-align:center; padding:3rem 1rem;
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  color:var(--muted,#718096);
+}
+.spendEmpty span { font-size:2.2rem; }
+.spendEmpty p { margin:0; font-weight:600; color:var(--text,#1a202c); }
+.spendEmpty small { max-width:380px; }
+
+.spendStatsRow {
+  display:flex; gap:1.5rem; flex-wrap:wrap;
+}
+.spendStat { display:flex; flex-direction:column; gap:.15rem; }
+.spendStat span { font-size:.78rem; color:var(--muted,#718096); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.spendStat b { font-size:1.5rem; font-weight:800; color:var(--gold,#c9a84c); }
+
+.spendTripList h3 { margin:0 0 .75rem; font-size:1rem; }
+.spendTripRow {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:.6rem .8rem; border-radius:.5rem;
+  background:var(--surface2,#f7f3ec); margin-bottom:.4rem;
+}
+.spendTripInfo { display:flex; flex-direction:column; gap:.1rem; }
+.spendTripInfo b { font-size:.92rem; }
+.spendTripInfo span { font-size:.8rem; }
+.spendTripAmount { font-weight:700; font-size:.95rem; }
+
+.estimatorControls {
+  display:flex; gap:1rem; margin:.75rem 0;
+}
+.estimatorControls label {
+  display:flex; flex-direction:column; gap:.3rem;
+  font-size:.85rem; font-weight:600;
+}
+.estimatorControls input, .estimatorControls select {
+  padding:.45rem .6rem; border:1px solid var(--border,#e2e8f0);
+  border-radius:.4rem; font-size:.9rem; font-weight:400;
+}
+
+.estimatorResult {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:.9rem 1rem; background:var(--surface,#fff);
+  border-radius:.5rem; margin-top:.5rem;
+  border:2px solid var(--gold,#c9a84c);
+}
+.estimatorResult span { font-size:.88rem; color:var(--muted,#718096); }
+.estimatorResult b { font-size:1.5rem; color:var(--gold,#c9a84c); }
+
+@media(max-width:600px){
+  .spendChartRow { grid-template-columns:1fr; gap:.3rem; }
+  .spendChartValue { text-align:left; }
+  .estimatorControls { flex-direction:column; }
+}

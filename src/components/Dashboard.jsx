@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TripCard from './TripCard';
 import TripMap from './TripMap';
+import SpendingDashboard from './SpendingDashboard';
 import { img } from '../utils/helpers';
 
 function Metric({value,label}){return <div className="metric"><b>{value}</b><span>{label}</span></div>}
@@ -63,6 +64,7 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
           Trips Taken {visited.length > 0 && <span className="tabBadge">{visited.length}</span>}
         </button>
         <button className={tab==='map'?'active':''} onClick={()=>setTab('map')}>🗺️ Map</button>
+        <button className={tab==='spending'?'active':''} onClick={()=>setTab('spending')}>💰 Spending</button>
         <button className={tab==='activity'?'active':''} onClick={()=>setTab('activity')}>Recent Activity</button>
       </div>
 
@@ -115,6 +117,12 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
         <div style={{marginTop:'1rem'}}>
           <p className="muted">All 47 destinations pinned. Gold = Visited · Orange = Love/Like · Dark = Planning · Light = Idea</p>
           <TripMap destinations={destinations} statusOf={statusOf} voteOf={voteOf} openTrip={openTrip} />
+        </div>
+      )}
+
+      {tab === 'spending' && (
+        <div style={{marginTop:'1rem'}}>
+          <SpendingDashboard destinations={destinations} statusOf={statusOf} />
         </div>
       )}
 

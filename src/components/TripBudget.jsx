@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { loadTripBudget, saveTripBudgetTarget, saveBudgetItem, deleteBudgetItem } from '../services/travelOsService';
 import ReceiptScanner from './ReceiptScanner';
+import { CategoryBarChart } from './SpendingChart';
 
 const CATEGORIES = ['Flights','Hotel','Food & Dining','Activities','Car & Transport','Shopping','Other'];
 const BLANK_ITEM = { category:'Flights', label:'', estimated:'', actual:'', notes:'' };
@@ -128,6 +129,13 @@ export default function TripBudget({ tripId }) {
                 style={{ width:`${Math.min((hasActuals?totalActual:totalEstimated)/target*100,100)}%` }}/>
             </div>
           )}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="spendChartPanel">
+          <h3>Spending by Category</h3>
+          <CategoryBarChart items={items} />
         </div>
       )}
 
