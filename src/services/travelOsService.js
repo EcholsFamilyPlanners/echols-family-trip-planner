@@ -935,3 +935,43 @@ export async function fetchAndCacheDestinationPhoto(tripId, searchQuery) {
     return null;
   }
 }
+
+// ── Skylight Frame Integration ────────────────────────
+
+export async function loadSkylightFrames() {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('skylight_frames').select('*')
+    .eq('household_id', HOUSEHOLD_ID).order('created_at');
+  if (error) { console.error(error); return []; }
+  return data || [];
+}
+
+export async function saveSkylightFrame(frame) {
+  if (!isSupabaseConfigured) return;
+  const payload = { ...frame, household_id: HOUSEHOLD_ID };
+  if (frame.id) {
+    const { error } = await supabase.from('skylight_frames').update(payload).eq('id', frame.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('skylight_frames').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteSkylightFrame(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('skylight_frames').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function sendPhotoToFrames(frameEmails, photoUrl, caption, tripTitle) {
+  const res = await fetch('/.netlify/functions/send-to-frame', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ frameEmails, photoUrl, caption, tripTitle }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.results;
+}

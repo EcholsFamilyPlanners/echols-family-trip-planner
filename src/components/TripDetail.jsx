@@ -209,7 +209,7 @@ function PackingNotes({ trip, shared, updateShared }) {
 
 function Memories({ trip, shared, updateShared, setCoverPhoto, actorName }) {
   return <>
-    <TripPhotos tripId={trip.id} onCoverChange={setCoverPhoto} />
+    <TripPhotos tripId={trip.id} onCoverChange={setCoverPhoto} tripTitle={trip.title} />
     <TripJournal tripId={trip.id} actorName={actorName} />
     <section className="twoCol">
       <section className="panel"><h2>Memories</h2><textarea value={shared.memories || ''} onChange={e=>updateShared(trip.id,{memories:e.target.value})} placeholder="Favorite moments, meals, photos, stories..." /></section>

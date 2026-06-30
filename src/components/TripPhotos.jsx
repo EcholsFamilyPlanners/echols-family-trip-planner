@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { loadTripPhotos, uploadTripPhoto, deleteTripPhoto, setPhotoAsCover, updatePhotoCaption } from '../services/travelOsService';
+import { loadTripPhotos, uploadTripPhoto, deleteTripPhoto, setPhotoAsCover, updatePhotoCaption, loadSkylightFrames, sendPhotoToFrames } from '../services/travelOsService';
 import { getSession } from '../services/travelOsService';
 
-export default function TripPhotos({ tripId, onCoverChange }) {
+export default function TripPhotos({ tripId, onCoverChange, tripTitle }) {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [selected, setSelected] = useState(null); // lightbox
   const [editCaption, setEditCaption] = useState('');
+  const [frames, setFrames] = useState([]);
+  const [sendingTo, setSendingTo] = useState(null);
+  const [showSendPicker, setShowSendPicker] = useState(false);
+  const [pickedFrames, setPickedFrames] = useState([]);
   const fileRef = useRef();
 
   const load = async () => {
@@ -15,12 +19,14 @@ export default function TripPhotos({ tripId, onCoverChange }) {
     const data = await loadTripPhotos(tripId);
     setPhotos(data);
     setLoading(false);
-    // Notify parent of cover photo
     const cover = data.find(p => p.is_cover);
     if (onCoverChange) onCoverChange(cover?.url || null);
   };
 
-  useEffect(() => { load(); }, [tripId]);
+  useEffect(() => {
+    load();
+    loadSkylightFrames().then(setFrames);
+  }, [tripId]);
 
   const handleFiles = async (files) => {
     if (!files?.length) return;
@@ -28,23 +34,50 @@ export default function TripPhotos({ tripId, onCoverChange }) {
     try {
       const session = await getSession();
       const isFirst = photos.length === 0;
+      const uploadedUrls = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!file.type.startsWith('image/')) continue;
         if (file.size > 10 * 1024 * 1024) { alert(`${file.name} is over 10MB — please resize it first.`); continue; }
-        await uploadTripPhoto({
+        const url = await uploadTripPhoto({
           tripId, file,
           caption: '',
           isCover: isFirst && i === 0,
           userId: session?.user?.id
         });
+        if (url) uploadedUrls.push(url);
       }
       await load();
+
+      // Auto-send to any frames marked auto_send
+      const autoFrames = frames.filter(f => f.auto_send);
+      if (autoFrames.length > 0 && uploadedUrls.length > 0) {
+        try {
+          for (const url of uploadedUrls) {
+            await sendPhotoToFrames(autoFrames.map(f => f.email), url, '', tripTitle);
+          }
+        } catch (e) { console.error('Auto-send to frames failed:', e); }
+      }
     } catch(e) {
       alert('Upload failed: ' + e.message);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const sendToFrames = async () => {
+    if (!selected || pickedFrames.length === 0) return;
+    setSendingTo(selected.id);
+    try {
+      await sendPhotoToFrames(pickedFrames, selected.url, editCaption, tripTitle);
+      alert('Sent! It should appear on the frame within a few minutes.');
+      setShowSendPicker(false);
+      setPickedFrames([]);
+    } catch (e) {
+      alert('Error sending to frame: ' + e.message);
+    } finally {
+      setSendingTo(null);
     }
   };
 
@@ -134,7 +167,7 @@ export default function TripPhotos({ tripId, onCoverChange }) {
 
       {/* Lightbox */}
       {selected && (
-        <div className="lightboxOverlay" onClick={() => setSelected(null)}>
+        <div className="lightboxOverlay" onClick={() => { setSelected(null); setShowSendPicker(false); }}>
           <div className="lightbox" onClick={e => e.stopPropagation()}>
             <img src={selected.url} alt={selected.caption || 'Trip photo'} />
             <div className="lightboxFooter">
@@ -144,8 +177,30 @@ export default function TripPhotos({ tripId, onCoverChange }) {
                 placeholder="Add a caption..."
               />
               <button className="btn gold" onClick={() => saveCaption(selected)}>Save Caption</button>
-              <button className="btn secondary" onClick={() => setSelected(null)}>Close</button>
+              {frames.length > 0 && (
+                <button className="btn secondary" onClick={() => setShowSendPicker(s => !s)}>🖼️ Send to Frame</button>
+              )}
+              <button className="btn secondary" onClick={() => { setSelected(null); setShowSendPicker(false); }}>Close</button>
             </div>
+
+            {showSendPicker && (
+              <div className="framePicker">
+                <p className="muted" style={{margin:'0 0 .5rem'}}>Send this photo to:</p>
+                {frames.map(f => (
+                  <label key={f.id} className="frameCheckRow">
+                    <input
+                      type="checkbox"
+                      checked={pickedFrames.includes(f.email)}
+                      onChange={e => setPickedFrames(prev => e.target.checked ? [...prev, f.email] : prev.filter(x => x !== f.email))}
+                    />
+                    {f.name}
+                  </label>
+                ))}
+                <button className="btn gold small" style={{marginTop:'.5rem'}} onClick={sendToFrames} disabled={pickedFrames.length===0 || sendingTo===selected.id}>
+                  {sendingTo===selected.id ? 'Sending...' : 'Send Now'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

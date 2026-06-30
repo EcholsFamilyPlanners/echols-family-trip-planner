@@ -968,3 +968,16 @@
   padding:.6rem .75rem; border-radius:.5rem;
   background:var(--surface2,#f7f3ec);
 }
+
+/* ── Skylight Frame Sending ────────────────────────── */
+
+.framePicker {
+  padding:1rem; border-top:1px solid var(--border,#e2e8f0);
+  background:var(--surface2,#f7f3ec);
+}
+.frameCheckRow {
+  display:flex; align-items:center; gap:.5rem;
+  padding:.3rem 0; font-size:.92rem; cursor:pointer;
+}
+
+/* Check-in/out resv display already uses resMeta, no extra CSS needed */
