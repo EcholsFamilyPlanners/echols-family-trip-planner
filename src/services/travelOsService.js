@@ -900,3 +900,38 @@ export async function mergeTrips(sourceTripId, targetTripId, sourceIsCustom) {
     }, { onConflict: 'trip_id' });
   }
 }
+
+// ── Unsplash Destination Photos ───────────────────────
+
+export async function loadPhotoCache() {
+  if (!isSupabaseConfigured) return {};
+  const { data, error } = await supabase
+    .from('destination_photo_cache')
+    .select('trip_id, photo_url');
+  if (error) { console.error(error); return {}; }
+  const map = {};
+  (data || []).forEach(row => { map[row.trip_id] = row.photo_url; });
+  return map;
+}
+
+export async function fetchAndCacheDestinationPhoto(tripId, searchQuery) {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const res = await fetch(`/.netlify/functions/unsplash-photo?q=${encodeURIComponent(searchQuery)}`);
+    const data = await res.json();
+    if (!data.url) return null;
+
+    await supabase.from('destination_photo_cache').upsert({
+      trip_id: tripId,
+      photo_url: data.url,
+      credit_name: data.credit || '',
+      credit_url: data.creditUrl || '',
+      cached_at: new Date().toISOString(),
+    }, { onConflict: 'trip_id' });
+
+    return data.url;
+  } catch (e) {
+    console.error('Error fetching Unsplash photo for', tripId, e);
+    return null;
+  }
+}

@@ -18,7 +18,7 @@ const VOTES = [
   { value: 'pass',  label: '👋 Pass' },
 ];
 
-export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted, allDestinations, customTrips }) {
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted, allDestinations, customTrips, destPhoto }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState(null);
@@ -27,7 +27,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
   const status = shared.status || trip.status || 'Idea';
   const favorite = !!personal.favorite;
   const estimated = estimate(trip);
-  const heroUrl = coverPhoto || img(trip.id);
+  const heroUrl = coverPhoto || destPhoto || img(trip.id);
 
   const handleVote = async (v) => {
     if (voting) return;

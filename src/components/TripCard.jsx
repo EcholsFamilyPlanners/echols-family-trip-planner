@@ -3,8 +3,8 @@ import { img } from '../utils/helpers';
 
 const VOTE_EMOJI = { love: '❤️', like: '👍', maybe: '🤔', pass: '👋' };
 
-export default function TripCard({ trip, status, favorite, vote, coverPhoto, openTrip, toggleFavorite }) {
-  const photoUrl = coverPhoto || img(trip.id);
+export default function TripCard({ trip, status, favorite, vote, coverPhoto, destPhoto, openTrip, toggleFavorite }) {
+  const photoUrl = coverPhoto || destPhoto || img(trip.id);
   return (
     <article className="tripCard" onClick={() => openTrip(trip)}>
       <div className="tripImage" style={{ backgroundImage: `url("${photoUrl}")` }} />
