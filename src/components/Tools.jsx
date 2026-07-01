@@ -138,13 +138,12 @@ export function SportsTracker({ venues, refresh }) {
               <div style={{display:'flex',alignItems:'center',gap:'.5rem',flexWrap:'wrap'}}>
                 <b>{v.name}</b>
                 {v.league && <span className="venueleagueBadge">{v.league}</span>}
-                {v.venue_type && v.venue_type !== 'Stadium' && <span className="venueTypeBadge">{v.venue_type}</span>}
+                {v.venue_type && v.venue_type !== 'Stadium' && v.venue_type !== 'Trip Venue' && <span className="venueTypeBadge">{v.venue_type}</span>}
               </div>
-              <span>{[v.city, v.state_region].filter(Boolean).join(', ')}</span>
-              <small>
-                {v.visited_date ? `✓ Visited ${v.visited_date}` : ''}
-              </small>
-              {v.notes && <small style={{fontStyle:'italic'}}>{v.notes}</small>}
+              <span>{[v.city, v.state_region].filter(Boolean).join(', ') || (v.notes && v.venue_type === 'Trip Venue' ? `📍 ${v.notes}` : '')}</span>
+              {v.visited_date && <small>✓ Visited {v.visited_date}</small>}
+              {v.notes && v.venue_type !== 'Trip Venue' && <small style={{fontStyle:'italic'}}>{v.notes}</small>}
+              {!v.city && !v.state_region && v.venue_type !== 'Trip Venue' && v.notes && <small style={{fontStyle:'italic'}}>{v.notes}</small>}
             </div>
             <div className="venueActions">
               <button className={v.visited?'btn gold':'btn secondary'} onClick={()=>toggle(v)}>
