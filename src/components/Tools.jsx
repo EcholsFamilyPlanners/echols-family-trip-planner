@@ -135,11 +135,14 @@ export function SportsTracker({ venues, refresh }) {
         {filtered.map(v => (
           <div className="venueCard" key={v.id}>
             <div>
-              <b>{v.name}</b>
-              <span>{[v.city, v.state_region, v.country].filter(Boolean).join(', ') || ''}</span>
+              <div style={{display:'flex',alignItems:'center',gap:'.5rem',flexWrap:'wrap'}}>
+                <b>{v.name}</b>
+                {v.league && <span className="venueleagueBadge">{v.league}</span>}
+                {v.venue_type && v.venue_type !== 'Stadium' && <span className="venueTypeBadge">{v.venue_type}</span>}
+              </div>
+              <span>{[v.city, v.state_region].filter(Boolean).join(', ')}</span>
               <small>
-                {[v.venue_type, v.league].filter(Boolean).join(' · ')}
-                {v.visited_date ? ` · Visited ${v.visited_date}` : ''}
+                {v.visited_date ? `✓ Visited ${v.visited_date}` : ''}
               </small>
               {v.notes && <small style={{fontStyle:'italic'}}>{v.notes}</small>}
             </div>

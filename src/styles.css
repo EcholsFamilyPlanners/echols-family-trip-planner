@@ -1179,3 +1179,20 @@
   padding:.4rem .6rem; border:1px solid var(--border,#e2e8f0);
   border-radius:.4rem; font-size:.88rem;
 }
+
+/* ── Venue League & Type Badges ────────────────────── */
+
+.venueleagueBadge {
+  display:inline-block; padding:.1rem .5rem;
+  border-radius:1rem; font-size:.72rem; font-weight:700;
+  background:var(--gold,#c9a84c); color:#fff;
+  flex-shrink:0;
+}
+.venueTypeBadge {
+  display:inline-block; padding:.1rem .5rem;
+  border-radius:1rem; font-size:.72rem; font-weight:600;
+  background:var(--surface2,#f7f3ec);
+  color:var(--muted,#718096);
+  border:1px solid var(--border,#e2e8f0);
+  flex-shrink:0;
+}
