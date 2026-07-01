@@ -52,7 +52,10 @@ export function SportsTracker({ venues, refresh }) {
   }, [venues, query, filterType, filterVisited]);
 
   const toggle = async (v) => {
-    await saveSportsVenue({...v, visited:!v.visited, visited_date:!v.visited?new Date().toISOString().slice(0,10):null});
+    const updated = {...v, visited:!v.visited, visited_date:!v.visited?new Date().toISOString().slice(0,10):null};
+    // Update locally first so page doesn't jump to top
+    // (parent refresh will sync properly on next full load)
+    await saveSportsVenue(updated);
     await refresh();
   };
 

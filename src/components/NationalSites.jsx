@@ -62,8 +62,11 @@ export default function NationalSites() {
   }, {});
 
   const toggle = async (site) => {
-    await saveNationalSite({ ...site, visited: !site.visited, visited_date: !site.visited ? new Date().toISOString().slice(0,10) : null });
-    await load();
+    const updated = { ...site, visited: !site.visited, visited_date: !site.visited ? new Date().toISOString().slice(0,10) : null };
+    // Update locally first so the page doesn't jump
+    setSites(prev => prev.map(s => s.id === site.id ? updated : s));
+    // Then persist to Supabase in the background
+    await saveNationalSite(updated);
   };
 
   const save = async () => {
