@@ -13,7 +13,7 @@ export default function Shell({ view, setView, session, children }) {
             <nav>{nav.map(([k,l]) => <button key={k} className={view===k?'active':''} onClick={()=>setView(k)}>{l}</button>)}</nav>
           </div>
           <div className="heroCopy">
-            <p className="eyebrow">Version 6.5 · Venue Leagues</p>
+            <p className="eyebrow">Version 6.6 · Pro Venues & Libraries</p>
             <h1>Plan it. Track it. Remember it.</h1>
             <p>A long-term travel operating system for trips, packing, stadiums, budgets, shared notes, and memories.</p>
             <p className="signinState">{session?.user?.email ? `Signed in as ${session.user.email}` : 'Local mode or not signed in'}</p>

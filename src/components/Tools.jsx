@@ -121,7 +121,8 @@ export function SportsTracker({ venues, refresh }) {
           </select>
           <select value={filterType} onChange={e=>setFilterType(e.target.value)}>
             <option value="all">All Types</option>
-            {venueTypes.map(t=><option key={t}>{t}</option>)}
+            <option value="Presidential Library">Presidential Libraries</option>
+            {venueTypes.filter(t => t !== 'Presidential Library').map(t=><option key={t}>{t}</option>)}
           </select>
         </div>
       </div>
@@ -137,9 +138,9 @@ export function SportsTracker({ venues, refresh }) {
             <div>
               <div style={{display:'flex',alignItems:'center',gap:'.5rem',flexWrap:'wrap'}}>
                 <b>{v.name}</b>
-                {v.league && v.league !== 'Trip Venue' && <span className="venueleagueBadge">{v.league}</span>}
+                {v.league && v.league !== 'Trip Venue' && <span className={`venueleagueBadge${v.venue_type==='Presidential Library'?' library':''}`}>{v.venue_type==='Presidential Library'?'🏛️ Pres. Library':v.league}</span>}
                 {!v.league && v.venue_type && <span className="venueTypeBadge">{v.venue_type}</span>}
-                {v.league && v.venue_type && v.venue_type !== 'Stadium' && v.venue_type !== 'Trip Venue' && <span className="venueTypeBadge">{v.venue_type}</span>}
+                {v.league && v.venue_type && v.venue_type !== 'Stadium' && v.venue_type !== 'Trip Venue' && v.venue_type !== 'Presidential Library' && <span className="venueTypeBadge">{v.venue_type}</span>}
               </div>
               <span>{[v.city, v.state_region].filter(Boolean).join(', ') || (v.notes && v.venue_type === 'Trip Venue' ? `📍 ${v.notes}` : '')}</span>
               {v.visited_date && <small>✓ Visited {v.visited_date}</small>}

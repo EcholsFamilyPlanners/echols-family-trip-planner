@@ -1196,3 +1196,8 @@
   border:1px solid var(--border,#e2e8f0);
   flex-shrink:0;
 }
+
+/* Presidential Library badge — distinct navy color */
+.venueleagueBadge.library {
+  background:#1e3a5f;
+}
