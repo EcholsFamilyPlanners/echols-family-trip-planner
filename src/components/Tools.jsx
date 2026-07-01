@@ -83,8 +83,17 @@ export function SportsTracker({ venues, refresh }) {
           <h3>New Venue</h3>
           <div className="shortlistFormGrid">
             <label>Name *<input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Augusta National"/></label>
-            <label>Type<input value={form.venue_type} onChange={e=>setForm({...form,venue_type:e.target.value})} placeholder="Stadium, Golf Course..."/></label>
-            <label>League / Tour<input value={form.league} onChange={e=>setForm({...form,league:e.target.value})} placeholder="e.g. PGA, NFL, MLB"/></label>
+            <label>Type
+              <select value={form.venue_type} onChange={e=>setForm({...form,venue_type:e.target.value})}>
+                {['Stadium','Arena','Golf Course','Racetrack','Motor Speedway','Soccer Stadium','Other'].map(t=><option key={t}>{t}</option>)}
+              </select>
+            </label>
+            <label>League / Tour
+              <select value={form.league} onChange={e=>setForm({...form,league:e.target.value})}>
+                <option value="">— Select —</option>
+                {['NFL','MLB','NBA','NHL','PGA','NASCAR','IndyCar','F1','MLS','NCAA Football','NCAA Basketball','UFC','Other'].map(l=><option key={l}>{l}</option>)}
+              </select>
+            </label>
             <label>City<input value={form.city} onChange={e=>setForm({...form,city:e.target.value})} placeholder="Augusta"/></label>
             <label>State / Region<input value={form.state_region} onChange={e=>setForm({...form,state_region:e.target.value})} placeholder="Georgia"/></label>
             <label>Country<input value={form.country} onChange={e=>setForm({...form,country:e.target.value})} placeholder="United States"/></label>
