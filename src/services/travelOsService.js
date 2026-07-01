@@ -1105,3 +1105,33 @@ export async function syncItineraryToBudget(tripId, days, stopsByDay) {
     }
   }
 }
+
+// ── National Sites Tracker ────────────────────────────
+
+export async function loadNationalSites() {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('national_sites').select('*')
+    .eq('household_id', HOUSEHOLD_ID)
+    .order('site_type').order('name');
+  if (error) { console.error(error); return []; }
+  return data || [];
+}
+
+export async function saveNationalSite(site) {
+  if (!isSupabaseConfigured) return;
+  const payload = { ...site, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };
+  if (site.id) {
+    const { error } = await supabase.from('national_sites').update(payload).eq('id', site.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('national_sites').insert(payload);
+    if (error) throw error;
+  }
+}
+
+export async function deleteNationalSite(id) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('national_sites').delete().eq('id', id);
+  if (error) throw error;
+}

@@ -106,22 +106,3 @@ insert into public.sports_venues (household_id, name, city, state_region, countr
 ('00000000-0000-0000-0000-000000000001','FedEx Forum','Memphis','Tennessee','United States','Arena','NBA · Grizzlies','Home of the Memphis Grizzlies',false),
 ('00000000-0000-0000-0000-000000000001','Frost Bank Center','San Antonio','Texas','United States','Arena','NBA · Spurs','Home of the San Antonio Spurs',false)
 on conflict do nothing;
-
--- ── PRESIDENTIAL LIBRARIES ───────────────────────────
-insert into public.sports_venues (household_id, name, city, state_region, country, venue_type, league, notes, visited) values
-('00000000-0000-0000-0000-000000000001','Herbert Hoover Presidential Library','West Branch','Iowa','United States','Presidential Library','Presidential Library','31st President — birthplace and burial site on grounds',false),
-('00000000-0000-0000-0000-000000000001','Franklin D. Roosevelt Presidential Library','Hyde Park','New York','United States','Presidential Library','Presidential Library','32nd President — first Presidential library, opened 1941',false),
-('00000000-0000-0000-0000-000000000001','Harry S. Truman Presidential Library','Independence','Missouri','United States','Presidential Library','Presidential Library','33rd President — Truman buried on the grounds',false),
-('00000000-0000-0000-0000-000000000001','Dwight D. Eisenhower Presidential Library','Abilene','Kansas','United States','Presidential Library','Presidential Library','34th President — Eisenhower buried in the Place of Meditation on site',false),
-('00000000-0000-0000-0000-000000000001','John F. Kennedy Presidential Library','Boston','Massachusetts','United States','Presidential Library','Presidential Library','35th President — stunning I.M. Pei design on Columbia Point',false),
-('00000000-0000-0000-0000-000000000001','Lyndon B. Johnson Presidential Library','Austin','Texas','United States','Presidential Library','Presidential Library','36th President — on the UT Austin campus',false),
-('00000000-0000-0000-0000-000000000001','Richard Nixon Presidential Library','Yorba Linda','California','United States','Presidential Library','Presidential Library','37th President — birthplace and burial site on grounds',false),
-('00000000-0000-0000-0000-000000000001','Gerald R. Ford Presidential Library','Ann Arbor','Michigan','United States','Presidential Library','Presidential Library','38th President — library in Ann Arbor, museum in Grand Rapids',false),
-('00000000-0000-0000-0000-000000000001','Gerald R. Ford Presidential Museum','Grand Rapids','Michigan','United States','Presidential Library','Presidential Library','38th President — museum location, Ford buried here',false),
-('00000000-0000-0000-0000-000000000001','Jimmy Carter Presidential Library','Atlanta','Georgia','United States','Presidential Library','Presidential Library','39th President — adjacent to Carter Center',false),
-('00000000-0000-0000-0000-000000000001','Ronald Reagan Presidential Library','Simi Valley','California','United States','Presidential Library','Presidential Library','40th President — Air Force One on display, Reagan buried on grounds',false),
-('00000000-0000-0000-0000-000000000001','George H.W. Bush Presidential Library','College Station','Texas','United States','Presidential Library','Presidential Library','41st President — on Texas A&M campus, Bush buried on grounds',false),
-('00000000-0000-0000-0000-000000000001','William J. Clinton Presidential Library','Little Rock','Arkansas','United States','Presidential Library','Presidential Library','42nd President — stunning design on the Arkansas River',false),
-('00000000-0000-0000-0000-000000000001','George W. Bush Presidential Library','Dallas','Texas','United States','Presidential Library','Presidential Library','43rd President — on the SMU campus',false),
-('00000000-0000-0000-0000-000000000001','Barack Obama Presidential Library','Chicago','Illinois','United States','Presidential Library','Presidential Library','44th President — under construction in Jackson Park on the South Side',false)
-on conflict do nothing;

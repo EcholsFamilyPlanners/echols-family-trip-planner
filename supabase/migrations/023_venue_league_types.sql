@@ -79,3 +79,43 @@ update public.sports_venues set league='NPB', venue_type='Stadium' where househo
 -- Hall of Fame / Landmarks
 update public.sports_venues set league='Hall of Fame', venue_type='Museum' where household_id='00000000-0000-0000-0000-000000000001' and name='Hockey Hall of Fame';
 
+
+-- Fix incorrect assignments from earlier in this migration
+update public.sports_venues set league='CFL · Calgary Stampeders', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='McMahon Stadium';
+update public.sports_venues set league='NFL · 49ers', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Levi''s Stadium';
+update public.sports_venues set league='NCAA FB · Various', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Rose Bowl';
+update public.sports_venues set league='NCAA FB · SMU', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Cotton Bowl Stadium';
+
+-- Remaining NCAA venues
+update public.sports_venues set league='NCAA FB · Arizona State', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Mountain America Stadium at Arizona State';
+update public.sports_venues set league='NCAA FB · Sun Bowl', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Sun Bowl Stadium';
+update public.sports_venues set league='NCAA BB · Alaska', venue_type='Arena' where household_id='00000000-0000-0000-0000-000000000001' and name='Alaska Airlines Center';
+update public.sports_venues set league='NCAA FB · Hawaii', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='University of Hawaiʻi athletics';
+update public.sports_venues set league='Gaelic Athletics', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Gaelic games';
+update public.sports_venues set league='NPB · Tokyo', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Tokyo Dome';
+
+-- Vague placeholder venues — mark as Experience so they don't show empty badges
+update public.sports_venues set league='Local Sports', venue_type='Experience' where household_id='00000000-0000-0000-0000-000000000001' and name in (
+  'Montreal sports add-on',
+  'Memorial University athletics',
+  'George V Park soccer history',
+  'Dalhousie athletics',
+  'Dartmouth athletics',
+  'Fenway Park add-on through Boston',
+  'Miami sports add-on',
+  'Jackson Hole rodeo',
+  'University of Wyoming add-on',
+  'Iditarod history stops',
+  'Winter sports venues vary by destination',
+  'sumo venues',
+  'winter sports venues',
+  'ski resort events',
+  'rugby venues',
+  'Swiss hockey arenas',
+  'Von Braun Center'
+);
+
+-- Additional venue type for MLS
+update public.sports_venues set league='MLS · Inter Miami', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Inter Miami CF';
+update public.sports_venues set league='MLS · FC Dallas', venue_type='Stadium' where household_id='00000000-0000-0000-0000-000000000001' and name='Toyota Stadium in Frisco';
+update public.sports_venues set league='MASL · Huntsville', venue_type='Arena' where household_id='00000000-0000-0000-0000-000000000001' and name='Toyota Field in Madison/Huntsville';

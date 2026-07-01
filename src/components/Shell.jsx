@@ -2,7 +2,7 @@
 export default function Shell({ view, setView, session, children }) {
   const nav = [
     ['dashboard','Dashboard'], ['people','People'], ['couples','Together'], ['compare','Compare'], ['library','Trips'], ['wishlist','My List'], ['finder','Decision Engine'], ['budget','Budget'],
-    ['packing','Packing'], ['venues','Sports'], ['journal','Journal'], ['add','+ Add Trip']
+    ['packing','Packing'], ['venues','Sports'], ['national','National Sites'], ['journal','Journal'], ['add','+ Add Trip']
   ];
   return (
     <>
@@ -13,7 +13,7 @@ export default function Shell({ view, setView, session, children }) {
             <nav>{nav.map(([k,l]) => <button key={k} className={view===k?'active':''} onClick={()=>setView(k)}>{l}</button>)}</nav>
           </div>
           <div className="heroCopy">
-            <p className="eyebrow">Version 6.6 · Pro Venues & Libraries</p>
+            <p className="eyebrow">Version 6.7 · National Sites</p>
             <h1>Plan it. Track it. Remember it.</h1>
             <p>A long-term travel operating system for trips, packing, stadiums, budgets, shared notes, and memories.</p>
             <p className="signinState">{session?.user?.email ? `Signed in as ${session.user.email}` : 'Local mode or not signed in'}</p>

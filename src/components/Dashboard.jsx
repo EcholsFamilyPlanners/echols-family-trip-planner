@@ -19,7 +19,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(hrs/24)}d ago`;
 }
 
-export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, destPhotos, journalCounts, sharedTripData, openTrip, toggleFavorite, venues, activityFeed, refresh }) {
+export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, coverPhotos, destPhotos, journalCounts, sharedTripData, openTrip, toggleFavorite, venues, activityFeed, refresh, setView }) {
   const [tab, setTab] = useState('overview');
 
   const top = destinations.filter(d=>statusOf(d)==='Top Pick');
@@ -51,7 +51,11 @@ export default function Dashboard({ destinations, statusOf, favoriteOf, voteOf, 
 
     <section className="split">
       <div className="panel large"><p className="eyebrow">Travel OS</p><h2>{top[0]?.title || destinations[0]?.title}</h2><p>{top[0]?.summary || destinations[0]?.summary}</p></div>
-      <div className="panel"><h2>Idea Inbox</h2><IdeaInbox/></div>
+      <div className="panel dashQuickLinks">
+        <h3>Quick Links</h3>
+        <button className="quickLinkBtn" onClick={()=>setView('venues')}>🏟️ Sports Venues<span>{venues.filter(v=>v.visited).length} visited</span></button>
+        <button className="quickLinkBtn" onClick={()=>setView('national')}>🏔️ National Sites<span>Parks · Monuments · Libraries</span></button>
+      </div>
     </section>
 
     <section className="panel dashTabs">

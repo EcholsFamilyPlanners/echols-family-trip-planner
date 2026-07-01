@@ -13,6 +13,7 @@ import CouplesPlanner from './components/CouplesPlanner';
 import TripCompare from './components/TripCompare';
 import People from './components/People';
 import DecisionEngine from './components/DecisionEngine';
+import NationalSites from './components/NationalSites';
 import { Budget, PackingManager, SportsTracker, Journal } from './components/Tools';
 import {
   getSession, onAuthChange, loadAllData, loadIdeaInbox, saveIdeaInbox,
@@ -149,7 +150,7 @@ function App(){
 
   return <Shell view={view} setView={v=>{setSelected(null);setView(v)}} session={session}>
     <AuthPanel session={session}/>
-    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} destPhotos={destPhotos} journalCounts={journalCounts} sharedTripData={sharedTripData} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} packingItems={packingItems} ideaInbox={ideaInbox} setIdeaInbox={setIdeaInbox} activityFeed={activityFeed} refresh={refresh}/>}
+    {view==='dashboard'&&<Dashboard destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} destPhotos={destPhotos} journalCounts={journalCounts} sharedTripData={sharedTripData} openTrip={openTrip} toggleFavorite={toggleFavorite} venues={sportsVenues} activityFeed={activityFeed} refresh={refresh} setView={v=>{setSelected(null);setView(v)}}/>}
     {view==='people'&&<People householdMembers={householdMembers} session={session} refresh={refresh} archivedIds={archivedIds} allDestinations={allDestinations}/>}
     {view==='couples'&&<CouplesPlanner destinations={destinations} householdMembers={householdMembers} allPersonalTripData={allPersonalTripData} sharedTripData={sharedTripData} allVotes={allVotes} myVotes={myVotes} coverPhotos={coverPhotos} destPhotos={destPhotos} togetherNotes={togetherNotes} updateTogetherNotes={updateTogetherNotes} statusOf={statusOf} favoriteOf={favoriteOf} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
     {view==='library'&&<TripLibrary destinations={destinations} statusOf={statusOf} favoriteOf={favoriteOf} voteOf={voteOf} coverPhotos={coverPhotos} destPhotos={destPhotos} openTrip={openTrip} toggleFavorite={toggleFavorite}/>}
@@ -160,6 +161,7 @@ function App(){
     {view==='budget'&&<Budget/>}
     {view==='packing'&&<PackingManager templates={packingTemplates} items={packingItems} refresh={refresh}/>}
     {view==='venues'&&<SportsTracker venues={sportsVenues} refresh={refresh}/>}
+    {view==='national'&&<NationalSites/>}
     {view==='journal'&&<Journal destinations={destinations} sharedData={sharedTripData} openTrip={openTrip}/>}
     {view==='add'&&<AddTrip addCustomTrip={addCustomTrip} goDashboard={goDash}/>}
   </Shell>
