@@ -137,8 +137,9 @@ export function SportsTracker({ venues, refresh }) {
             <div>
               <div style={{display:'flex',alignItems:'center',gap:'.5rem',flexWrap:'wrap'}}>
                 <b>{v.name}</b>
-                {v.league && <span className="venueleagueBadge">{v.league}</span>}
-                {v.venue_type && v.venue_type !== 'Stadium' && v.venue_type !== 'Trip Venue' && <span className="venueTypeBadge">{v.venue_type}</span>}
+                {v.league && v.league !== 'Trip Venue' && <span className="venueleagueBadge">{v.league}</span>}
+                {!v.league && v.venue_type && <span className="venueTypeBadge">{v.venue_type}</span>}
+                {v.league && v.venue_type && v.venue_type !== 'Stadium' && v.venue_type !== 'Trip Venue' && <span className="venueTypeBadge">{v.venue_type}</span>}
               </div>
               <span>{[v.city, v.state_region].filter(Boolean).join(', ') || (v.notes && v.venue_type === 'Trip Venue' ? `📍 ${v.notes}` : '')}</span>
               {v.visited_date && <small>✓ Visited {v.visited_date}</small>}
