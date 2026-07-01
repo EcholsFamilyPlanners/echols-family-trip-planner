@@ -1167,3 +1167,15 @@
 /* ── Active Trip Highlight ─────────────────────────── */
 
 .dashTabs h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+
+/* ── Sports Venue Search ───────────────────────────── */
+
+.venueSearch {
+  display:flex; flex-direction:column; gap:.5rem;
+  margin:.75rem 0;
+}
+.venueFilters { display:flex; gap:.5rem; flex-wrap:wrap; }
+.venueFilters select {
+  padding:.4rem .6rem; border:1px solid var(--border,#e2e8f0);
+  border-radius:.4rem; font-size:.88rem;
+}

@@ -27,13 +27,126 @@ export function PackingManager({templates,items,refresh}) {
   return <section className="panel"><h2>Packing Manager</h2><div className="packingAdd"><select value={active} onChange={e=>setTemplate(e.target.value)}>{templates.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select><input value={newTemplate} onChange={e=>setNewTemplate(e.target.value)} placeholder="New template"/><button className="btn secondary" onClick={addTemplate}>Add Template</button></div><div className="packingAdd"><input value={newItem} onChange={e=>setNewItem(e.target.value)} placeholder="New item"/><input value={cat} onChange={e=>setCat(e.target.value)} placeholder="Category"/><button className="btn gold" onClick={addItem}>Add Item</button></div><div className="packingGrid">{Object.entries(grouped).map(([c,list])=><div className="packingGroup" key={c}><h3>{c}</h3>{list.map(i=><label key={i.id} className={i.packed?'packed':''}><input type="checkbox" checked={!!i.packed} onChange={()=>toggle(i)}/> {i.item}</label>)}</div>)}</div></section>
 }
 
-export function SportsTracker({venues,refresh}) {
-  const [filter,setFilter]=useState('all'); const [form,setForm]=useState({name:'',city:'',state_region:'',country:'United States',venue_type:'Stadium',league:'',notes:''});
-  const shown=useMemo(()=>venues.filter(v=>filter==='all'?true:filter==='visited'?v.visited:!v.visited),[venues,filter]);
-  const toggle=async(v)=>{await saveSportsVenue({...v,visited:!v.visited,visited_date:!v.visited?new Date().toISOString().slice(0,10):null});await refresh();}
-  const add=async()=>{if(!form.name.trim())return;await saveSportsVenue({...form,visited:false});setForm({name:'',city:'',state_region:'',country:'United States',venue_type:'Stadium',league:'',notes:''});await refresh();}
-  return <section className="panel"><h2>Sports Venue Tracker</h2><div className="venueStats"><div><b>{venues.length}</b><span>Total</span></div><div><b>{venues.filter(v=>v.visited).length}</b><span>Visited</span></div><div><b>{venues.filter(v=>!v.visited).length}</b><span>Not Yet</span></div></div><div className="tabs">{['all','visited','not'].map(x=><button key={x} className={filter===x?'active':''} onClick={()=>setFilter(x)}>{x==='not'?'Not Yet':x}</button>)}</div><div className="venueAdd">{['name','city','state_region','venue_type','league','notes'].map(k=><input key={k} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})} placeholder={k}/>) }<button className="btn gold" onClick={add}>Add Venue</button></div><div className="venueCards">{shown.map(v=><div className="venueCard" key={v.id}><div><b>{v.name}</b><span>{[v.city,v.state_region,v.country].filter(Boolean).join(', ')||v.notes}</span><small>{v.league||v.venue_type}{v.visited_date?` · visited ${v.visited_date}`:''}</small></div><div className="venueActions"><button className={v.visited?'btn gold':'btn secondary'} onClick={()=>toggle(v)}>{v.visited?'Visited':'Mark Visited'}</button><a className="btn secondary" href={mapUrl(v.name)} target="_blank">Map</a></div></div>)}</div></section>
+export function SportsTracker({ venues, refresh }) {
+  const [query, setQuery] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [filterVisited, setFilterVisited] = useState('all');
+  const [form, setForm] = useState({ name:'', city:'', state_region:'', country:'United States', venue_type:'Stadium', league:'', notes:'' });
+  const [showAdd, setShowAdd] = useState(false);
+
+  const venueTypes = [...new Set(venues.map(v => v.venue_type).filter(Boolean))].sort();
+
+  const filtered = useMemo(() => {
+    let result = [...venues];
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(v =>
+        [v.name, v.city, v.state_region, v.country, v.venue_type, v.league, v.notes]
+          .some(field => (field||'').toLowerCase().includes(q))
+      );
+    }
+    if (filterType !== 'all') result = result.filter(v => v.venue_type === filterType);
+    if (filterVisited === 'visited') result = result.filter(v => v.visited);
+    if (filterVisited === 'not') result = result.filter(v => !v.visited);
+    return result.sort((a,b) => a.name.localeCompare(b.name));
+  }, [venues, query, filterType, filterVisited]);
+
+  const toggle = async (v) => {
+    await saveSportsVenue({...v, visited:!v.visited, visited_date:!v.visited?new Date().toISOString().slice(0,10):null});
+    await refresh();
+  };
+
+  const add = async () => {
+    if (!form.name.trim()) return;
+    await saveSportsVenue({...form, visited:false});
+    setForm({ name:'', city:'', state_region:'', country:'United States', venue_type:'Stadium', league:'', notes:'' });
+    setShowAdd(false);
+    await refresh();
+  };
+
+  return (
+    <section className="panel">
+      <div className="shortlistHeader">
+        <div>
+          <h2>🏟️ Sports Venue Tracker</h2>
+          <div className="venueStats">
+            <div><b>{venues.length}</b><span>Total</span></div>
+            <div><b>{venues.filter(v=>v.visited).length}</b><span>Visited</span></div>
+            <div><b>{venues.filter(v=>!v.visited).length}</b><span>Not Yet</span></div>
+          </div>
+        </div>
+        <button className="btn gold" onClick={()=>setShowAdd(s=>!s)}>+ Add Venue</button>
+      </div>
+
+      {showAdd && (
+        <div className="shortlistForm">
+          <h3>New Venue</h3>
+          <div className="shortlistFormGrid">
+            <label>Name *<input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Augusta National"/></label>
+            <label>Type<input value={form.venue_type} onChange={e=>setForm({...form,venue_type:e.target.value})} placeholder="Stadium, Golf Course..."/></label>
+            <label>League / Tour<input value={form.league} onChange={e=>setForm({...form,league:e.target.value})} placeholder="e.g. PGA, NFL, MLB"/></label>
+            <label>City<input value={form.city} onChange={e=>setForm({...form,city:e.target.value})} placeholder="Augusta"/></label>
+            <label>State / Region<input value={form.state_region} onChange={e=>setForm({...form,state_region:e.target.value})} placeholder="Georgia"/></label>
+            <label>Country<input value={form.country} onChange={e=>setForm({...form,country:e.target.value})} placeholder="United States"/></label>
+          </div>
+          <label style={{display:'flex',flexDirection:'column',gap:'.3rem'}}>Notes<textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Notes about this venue..."/></label>
+          <div className="formActions" style={{marginTop:'.75rem'}}>
+            <button className="btn gold" onClick={add}>Save Venue</button>
+            <button className="btn secondary" onClick={()=>setShowAdd(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <div className="venueSearch">
+        <input
+          className="search"
+          value={query}
+          onChange={e=>setQuery(e.target.value)}
+          placeholder="Search by name, city, state, league, type, notes..."
+        />
+        <div className="venueFilters">
+          <select value={filterVisited} onChange={e=>setFilterVisited(e.target.value)}>
+            <option value="all">All</option>
+            <option value="visited">Visited</option>
+            <option value="not">Not Yet</option>
+          </select>
+          <select value={filterType} onChange={e=>setFilterType(e.target.value)}>
+            <option value="all">All Types</option>
+            {venueTypes.map(t=><option key={t}>{t}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <p className="muted" style={{fontSize:'.82rem',margin:'.25rem 0 .75rem'}}>
+        {filtered.length} of {venues.length} venue{venues.length!==1?'s':''}
+      </p>
+
+      <div className="venueCards">
+        {filtered.length === 0 && <p className="muted">No venues match your search.</p>}
+        {filtered.map(v => (
+          <div className="venueCard" key={v.id}>
+            <div>
+              <b>{v.name}</b>
+              <span>{[v.city, v.state_region, v.country].filter(Boolean).join(', ') || ''}</span>
+              <small>
+                {[v.venue_type, v.league].filter(Boolean).join(' · ')}
+                {v.visited_date ? ` · Visited ${v.visited_date}` : ''}
+              </small>
+              {v.notes && <small style={{fontStyle:'italic'}}>{v.notes}</small>}
+            </div>
+            <div className="venueActions">
+              <button className={v.visited?'btn gold':'btn secondary'} onClick={()=>toggle(v)}>
+                {v.visited ? '✓ Visited' : 'Mark Visited'}
+              </button>
+              <a className="btn secondary" href={mapUrl(v.name)} target="_blank">Map</a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export function Journal({destinations,sharedData,openTrip}){const entries=destinations.map(t=>({trip:t,data:sharedData[t.id]||{}})).filter(x=>x.data.memories||x.data.ideas||x.data.shared_notes);return <section className="panel"><h2>Journal</h2><div className="listButtons">{entries.length?entries.map(x=><button key={x.trip.id} onClick={()=>openTrip(x.trip)}><b>{x.trip.title}</b><span>{x.data.memories||x.data.ideas||x.data.shared_notes}</span></button>):<p>No journal entries yet.</p>}</div></section>}
+
 function Field({label,children}){return <label className="field">{label}{children}</label>}

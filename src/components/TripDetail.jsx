@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MapPin, Printer } from 'lucide-react';
 import { img, mapUrl, money } from '../utils/helpers';
 import HotelShortlist from './HotelShortlist';
@@ -19,7 +19,7 @@ const VOTES = [
   { value: 'pass',  label: '👋 Pass' },
 ];
 
-export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted, allDestinations, customTrips, destPhoto }) {
+export default function TripDetail({ trip, shared={}, personal={}, myVote, castVote, updateShared, updatePersonal, goBack, actorName, isCustom, onTripDeleted, allDestinations, customTrips, destPhoto, allVenues }) {
   const [tab, setTab] = useState('overview');
   const [voting, setVoting] = useState(false);
   const [coverPhoto, setCoverPhoto] = useState(null);
@@ -125,7 +125,7 @@ export default function TripDetail({ trip, shared={}, personal={}, myVote, castV
     {tab === 'plan' && <Planning trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'itinerary' && <Itinerary trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'food' && <FoodHotels trip={trip} shared={shared} updateShared={updateShared} />}
-    {tab === 'sports' && <Sports trip={trip} />}
+    {tab === 'sports' && <Sports trip={trip} allVenues={allVenues} />}
     {tab === 'packing' && <PackingNotes trip={trip} shared={shared} updateShared={updateShared} />}
     {tab === 'memories' && <Memories trip={trip} shared={shared} updateShared={updateShared} setCoverPhoto={setCoverPhoto} actorName={actorName} />}
     {tab === 'personal' && <PersonalNotes trip={trip} personal={personal} updatePersonal={updatePersonal} />}
@@ -186,13 +186,46 @@ function FoodHotels({ trip, shared, updateShared }) {
   </>
 }
 
-function Sports({ trip }) {
+function Sports({ trip, allVenues }) {
+  // Find saved venues that match this trip's region or are associated with it
+  const matchedVenues = useMemo(() => {
+    if (!allVenues?.length) return [];
+    const tripRegion = (trip.region || '').toLowerCase();
+    const tripSubregion = (trip.subregion || '').toLowerCase();
+    const tripTitle = (trip.title || '').toLowerCase();
+    return allVenues.filter(v => {
+      const vCity = (v.city || '').toLowerCase();
+      const vState = (v.state_region || '').toLowerCase();
+      const vCountry = (v.country || '').toLowerCase();
+      const vNotes = (v.notes || '').toLowerCase();
+      // Match if associated trip, or region/subregion/title overlap with venue location/notes
+      return v.associated_trip_id === trip.id ||
+        (tripRegion && (vCountry.includes(tripRegion) || vState.includes(tripRegion) || vNotes.includes(tripRegion))) ||
+        (tripSubregion && (vCity.includes(tripSubregion) || vState.includes(tripSubregion) || vNotes.includes(tripSubregion))) ||
+        (tripTitle && vNotes.includes(tripTitle));
+    });
+  }, [allVenues, trip]);
+
   return <section className="twoCol">
-    <List title="Sports & Iconic Venues" items={trip.sports} linked/>
+    <List title="Sports & Iconic Venues (Suggested)" items={trip.sports} linked/>
     <section className="panel">
-      <h2>Sports Nearby</h2>
-      <p>Use the main <b>Sports</b> tracker to add custom venues and mark them visited separately.</p>
-      <ul>{trip.sports?.map(v=><li key={v}><a href={mapUrl(v)} target="_blank">{v}</a></li>)}</ul>
+      <h2>🏟️ Your Saved Venues Near This Trip</h2>
+      {matchedVenues.length === 0 ? (
+        <p className="muted">No saved venues match this trip's region yet. Add venues in the Sports Tracker and they'll appear here when they match.</p>
+      ) : (
+        <div className="venueCards">
+          {matchedVenues.map(v => (
+            <div className="venueCard" key={v.id}>
+              <div>
+                <b>{v.name}</b>
+                <span>{[v.city, v.state_region].filter(Boolean).join(', ')}</span>
+                <small>{[v.venue_type, v.league].filter(Boolean).join(' · ')}{v.visited ? ' · ✓ Visited' : ''}</small>
+              </div>
+              <a className="btn secondary small" href={mapUrl(v.name)} target="_blank">Map</a>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   </section>
 }
