@@ -1232,3 +1232,24 @@
 }
 .sitesStat b { font-size:1rem; display:block; line-height:1; }
 .sitesStat span { font-size:.72rem; color:var(--muted,#718096); }
+
+/* ── Itinerary Day City Field ──────────────────────── */
+
+.itineraryDayMeta { display:flex; flex-direction:column; gap:.15rem; }
+
+.dayLabel {
+  font-size:.78rem; font-weight:600; color:var(--muted,#718096);
+  text-transform:uppercase; letter-spacing:.05em; cursor:pointer;
+}
+
+.dayCityTitle {
+  margin:0; font-size:1.15rem; font-weight:800;
+  cursor:pointer; color:var(--text,#1a202c);
+}
+.dayCityTitle .muted { font-weight:400; font-size:.9rem; }
+
+.dayCityInput {
+  font-size:1.1rem; font-weight:700; padding:.3rem .5rem;
+  border:2px solid var(--gold,#c9a84c); border-radius:.4rem;
+  width:100%; box-sizing:border-box;
+}

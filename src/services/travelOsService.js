@@ -1045,6 +1045,12 @@ export async function updateItineraryDay(dayId, patch) {
   if (error) throw error;
 }
 
+export async function setItineraryDayCity(dayId, city) {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('itinerary_days').update({ city }).eq('id', dayId);
+  if (error) throw error;
+}
+
 export async function saveItineraryStop(stop) {
   if (!isSupabaseConfigured) return;
   const payload = { ...stop, household_id: HOUSEHOLD_ID, updated_at: new Date().toISOString() };

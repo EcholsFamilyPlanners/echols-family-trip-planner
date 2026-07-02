@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  loadItinerary, setItineraryDayCount, updateItineraryDay,
+  loadItinerary, setItineraryDayCount, updateItineraryDay, setItineraryDayCity,
   saveItineraryStop, deleteItineraryStop, syncItineraryToBudget
 } from '../services/travelOsService';
 import { mapUrl } from '../utils/helpers';
@@ -20,6 +20,7 @@ export default function ItineraryBuilder({ tripId }) {
   const [loading, setLoading] = useState(true);
   const [stopForm, setStopForm] = useState(null); // { dayId, ...stop }
   const [editingDayTitle, setEditingDayTitle] = useState(null);
+  const [editingDayCity, setEditingDayCity] = useState(null);
   const [syncing, setSyncing] = useState(false);
 
   const load = async () => {
@@ -74,6 +75,12 @@ export default function ItineraryBuilder({ tripId }) {
     await load();
   };
 
+  const saveDayCity = async (dayId, city) => {
+    await setItineraryDayCity(dayId, city);
+    setEditingDayCity(null);
+    await load();
+  };
+
   const tripTotalCost = Object.values(stopsByDay).flat().reduce((s, stop) => s + (Number(stop.cost) || 0), 0);
 
   if (loading) return <p className="muted">Loading itinerary...</p>;
@@ -115,19 +122,38 @@ export default function ItineraryBuilder({ tripId }) {
           return (
             <div className="itineraryDayCard" key={day.id}>
               <div className="itineraryDayHeader">
-                {editingDayTitle === day.id ? (
-                  <input
-                    className="dayTitleInput"
-                    defaultValue={day.title || `Day ${day.day_number}`}
-                    autoFocus
-                    onBlur={e => saveDayTitle(day.id, e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-                  />
-                ) : (
-                  <h3 onClick={()=>setEditingDayTitle(day.id)}>
-                    {day.title || `Day ${day.day_number}`} <span className="editPencil">✎</span>
-                  </h3>
-                )}
+                <div className="itineraryDayMeta">
+                  {/* Day number + optional title */}
+                  {editingDayTitle === day.id ? (
+                    <input
+                      className="dayTitleInput"
+                      defaultValue={day.title || `Day ${day.day_number}`}
+                      autoFocus
+                      onBlur={e => saveDayTitle(day.id, e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                    />
+                  ) : (
+                    <span className="dayLabel" onClick={()=>setEditingDayTitle(day.id)}>
+                      {day.title || `Day ${day.day_number}`} <span className="editPencil">✎</span>
+                    </span>
+                  )}
+
+                  {/* City — the primary field */}
+                  {editingDayCity === day.id ? (
+                    <input
+                      className="dayCityInput"
+                      defaultValue={day.city || ''}
+                      autoFocus
+                      placeholder="Enter city..."
+                      onBlur={e => saveDayCity(day.id, e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                    />
+                  ) : (
+                    <h3 className="dayCityTitle" onClick={()=>setEditingDayCity(day.id)}>
+                      {day.city ? `📍 ${day.city}` : <span className="muted">+ Add city <span className="editPencil">✎</span></span>}
+                    </h3>
+                  )}
+                </div>
                 {dayCost > 0 && <span className="dayCostBadge">{money(dayCost)}</span>}
               </div>
 
