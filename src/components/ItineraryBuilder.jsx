@@ -40,8 +40,10 @@ export default function ItineraryBuilder({ tripId }) {
   const saveStop = async () => {
     if (!stopForm?.destination?.trim()) return alert('Destination is required.');
     const dayStops = stopsByDay[stopForm.dayId] || [];
+    const { dayId, ...stopData } = stopForm; // pull dayId out separately
     await saveItineraryStop({
-      ...stopForm,
+      ...stopData,
+      day_id: dayId,              // map camelCase to snake_case for DB
       trip_id: tripId,
       cost: stopForm.cost ? Number(stopForm.cost) : null,
       duration_minutes: stopForm.duration_minutes ? Number(stopForm.duration_minutes) : null,
@@ -147,7 +149,7 @@ export default function ItineraryBuilder({ tripId }) {
                       <a className="btn secondary small" href={mapUrl(stop.destination)} target="_blank">Map</a>
                       {stop.website && <a className="btn secondary small" href={stop.website} target="_blank">Site</a>}
                       {stop.reservation_link && <a className="btn secondary small" href={stop.reservation_link} target="_blank">Reservation</a>}
-                      <button className="btn secondary small" onClick={()=>setStopForm({...stop, dayId: day.id})}>Edit</button>
+                      <button className="btn secondary small" onClick={()=>setStopForm({...stop, dayId: stop.day_id || day.id})}>Edit</button>
                       <button className="btn secondary small danger" onClick={()=>removeStop(stop.id)}>✕</button>
                     </div>
                   </div>
