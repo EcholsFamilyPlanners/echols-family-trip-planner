@@ -8,7 +8,7 @@ import { mapUrl } from '../utils/helpers';
 const CATEGORIES = ['Sightseeing','Food','Activity','Transport','Rest'];
 const CATEGORY_ICON = { Sightseeing:'🏛️', Food:'🍽️', Activity:'🎯', Transport:'🚗', Rest:'😌' };
 const STATUS_OPTIONS = ['Idea','Booked','Confirmed'];
-const BLANK_STOP = { destination:'', category:'Sightseeing', time_slot:'', duration_minutes:'', cost:'', reservation_link:'', website:'', notes:'', status:'Idea' };
+const BLANK_STOP = { destination:'', city:'', category:'Sightseeing', time_slot:'', duration_minutes:'', cost:'', reservation_link:'', website:'', notes:'', status:'Idea' };
 
 function money(n) {
   return Number(n||0).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
@@ -118,12 +118,13 @@ export default function ItineraryBuilder({ tripId }) {
         {days.map(day => {
           const stops = (stopsByDay[day.id] || []).sort((a,b)=>a.sort_order-b.sort_order);
           const dayCost = stops.reduce((s,stop)=>s+(Number(stop.cost)||0),0);
+          // Collect unique cities from stops for the day header
+          const dayCities = [...new Set(stops.map(s => s.city).filter(Boolean))];
 
           return (
             <div className="itineraryDayCard" key={day.id}>
               <div className="itineraryDayHeader">
                 <div className="itineraryDayMeta">
-                  {/* Day number + optional title */}
                   {editingDayTitle === day.id ? (
                     <input
                       className="dayTitleInput"
@@ -137,20 +138,14 @@ export default function ItineraryBuilder({ tripId }) {
                       {day.title || `Day ${day.day_number}`} <span className="editPencil">✎</span>
                     </span>
                   )}
-
-                  {/* City — the primary field */}
-                  {editingDayCity === day.id ? (
-                    <input
-                      className="dayCityInput"
-                      defaultValue={day.city || ''}
-                      autoFocus
-                      placeholder="Enter city..."
-                      onBlur={e => saveDayCity(day.id, e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-                    />
-                  ) : (
-                    <h3 className="dayCityTitle" onClick={()=>setEditingDayCity(day.id)}>
-                      {day.city ? `📍 ${day.city}` : <span className="muted">+ Add city <span className="editPencil">✎</span></span>}
+                  {dayCities.length > 0 && (
+                    <h3 className="dayCityTitle">
+                      📍 {dayCities.join(' → ')}
+                    </h3>
+                  )}
+                  {dayCities.length === 0 && (
+                    <h3 className="dayCityTitle">
+                      <span className="muted" style={{fontSize:'.85rem',fontWeight:400}}>Add a city to each stop below</span>
                     </h3>
                   )}
                 </div>
@@ -162,7 +157,10 @@ export default function ItineraryBuilder({ tripId }) {
                   <div className={`itineraryStop status-${stop.status.toLowerCase()}`} key={stop.id}>
                     <span className="stopIcon">{CATEGORY_ICON[stop.category]||'📍'}</span>
                     <div className="stopInfo">
-                      <b>{stop.destination}</b>
+                      <div style={{display:'flex',alignItems:'center',gap:'.4rem',flexWrap:'wrap'}}>
+                        <b>{stop.destination}</b>
+                        {stop.city && <span className="stopCityBadge">📍 {stop.city}</span>}
+                      </div>
                       <div className="stopMeta">
                         {stop.time_slot && <span>🕐 {stop.time_slot}</span>}
                         {stop.duration_minutes && <span>⏱️ {stop.duration_minutes}m</span>}
@@ -198,7 +196,8 @@ export default function ItineraryBuilder({ tripId }) {
               <button className="btn secondary small" onClick={()=>setStopForm(null)}>✕</button>
             </div>
             <div className="shortlistFormGrid">
-              <label>Destination *<input value={stopForm.destination} onChange={e=>setStopForm({...stopForm,destination:e.target.value})} placeholder="e.g. Eiffel Tower"/></label>
+              <label>Destination *<input value={stopForm.destination} onChange={e=>setStopForm({...stopForm,destination:e.target.value})} placeholder="e.g. Forsyth Park"/></label>
+              <label>City<input value={stopForm.city} onChange={e=>setStopForm({...stopForm,city:e.target.value})} placeholder="e.g. Savannah"/></label>
               <label>Category
                 <select value={stopForm.category} onChange={e=>setStopForm({...stopForm,category:e.target.value})}>
                   {CATEGORIES.map(c=><option key={c}>{c}</option>)}

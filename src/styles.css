@@ -1253,3 +1253,11 @@
   border:2px solid var(--gold,#c9a84c); border-radius:.4rem;
   width:100%; box-sizing:border-box;
 }
+
+.stopCityBadge {
+  font-size:.72rem; font-weight:600;
+  color:var(--muted,#718096);
+  background:var(--surface,#fff);
+  border:1px solid var(--border,#e2e8f0);
+  padding:.1rem .45rem; border-radius:1rem;
+}
