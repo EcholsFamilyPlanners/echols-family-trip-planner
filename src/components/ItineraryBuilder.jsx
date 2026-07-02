@@ -22,6 +22,7 @@ export default function ItineraryBuilder({ tripId }) {
   const [editingDayTitle, setEditingDayTitle] = useState(null);
   const [editingDayCity, setEditingDayCity] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const dragStop = useRef(null);
   const dragOverStop = useRef(null);
 
@@ -115,8 +116,6 @@ export default function ItineraryBuilder({ tripId }) {
     setPrinting(true);
     setTimeout(() => { window.print(); setPrinting(false); }, 100);
   };
-
-  const [printing, setPrinting] = useState(false);
 
   return (
     <section className="panel itineraryBuilder">
