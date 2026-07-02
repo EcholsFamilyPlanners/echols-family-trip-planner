@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   loadItinerary, setItineraryDayCount, updateItineraryDay, setItineraryDayCity,
   saveItineraryStop, deleteItineraryStop, syncItineraryToBudget
@@ -22,6 +22,32 @@ export default function ItineraryBuilder({ tripId }) {
   const [editingDayTitle, setEditingDayTitle] = useState(null);
   const [editingDayCity, setEditingDayCity] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const dragStop = useRef(null);
+  const dragOverStop = useRef(null);
+
+  const handleDragEnd = async (dayId) => {
+    const stops = [...(stopsByDay[dayId] || [])].sort((a,b)=>a.sort_order-b.sort_order);
+    const fromIdx = stops.findIndex(s => s.id === dragStop.current);
+    const toIdx = stops.findIndex(s => s.id === dragOverStop.current);
+    if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+
+    // Reorder array
+    const reordered = [...stops];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Update sort_order locally immediately
+    const updated = reordered.map((s, i) => ({ ...s, sort_order: i }));
+    setStopsByDay(prev => ({ ...prev, [dayId]: updated }));
+
+    // Persist new sort orders
+    for (const s of updated) {
+      await saveItineraryStop(s);
+    }
+
+    dragStop.current = null;
+    dragOverStop.current = null;
+  };
 
   const load = async () => {
     setLoading(true);
@@ -85,20 +111,65 @@ export default function ItineraryBuilder({ tripId }) {
 
   if (loading) return <p className="muted">Loading itinerary...</p>;
 
+  const handlePrint = () => {
+    setPrinting(true);
+    setTimeout(() => { window.print(); setPrinting(false); }, 100);
+  };
+
+  const [printing, setPrinting] = useState(false);
+
   return (
     <section className="panel itineraryBuilder">
+
+      {/* Printable version — hidden on screen, shown when printing */}
+      <div className="printableItinerary" style={{display:'none'}}>
+        <h1>Trip Itinerary</h1>
+        <p className="printSubtitle">{days.length} days · {Object.values(stopsByDay).flat().length} stops</p>
+        {days.map(day => {
+          const stops = (stopsByDay[day.id] || []).sort((a,b)=>a.sort_order-b.sort_order);
+          const dayCities = [...new Set(stops.map(s=>s.city).filter(Boolean))];
+          const dayCost = stops.reduce((s,stop)=>s+(Number(stop.cost)||0),0);
+          return (
+            <div className="printDay" key={day.id}>
+              <div className="printDayHeader">
+                <span className="printDayTitle">{day.title || `Day ${day.day_number}`}{dayCities.length > 0 ? ` — ${dayCities.join(' → ')}` : ''}</span>
+                {dayCost > 0 && <span>${dayCost.toFixed(0)}</span>}
+              </div>
+              {stops.map(stop => (
+                <div className="printStop" key={stop.id}>
+                  <span className="printStopTime">{stop.time_slot || '—'}</span>
+                  <div>
+                    <div className="printStopName">{CATEGORY_ICON[stop.category]} {stop.destination}{stop.city ? ` · ${stop.city}` : ''}</div>
+                    <div className="printStopMeta">
+                      {[stop.duration_minutes ? `${stop.duration_minutes}min` : '', stop.cost ? `$${stop.cost}` : '', stop.status !== 'Idea' ? stop.status : ''].filter(Boolean).join(' · ')}
+                      {stop.notes && ` — ${stop.notes}`}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        {tripTotalCost > 0 && <p className="printTotalCost">Total Estimated Cost: ${tripTotalCost.toFixed(0)}</p>}
+      </div>
+
       <div className="itineraryHeader">
         <div>
           <h2>🗺️ Day-by-Day Itinerary</h2>
           <p className="muted">Build your trip day by day. Stop costs automatically roll into your Budget tab.</p>
         </div>
-        <div className="itineraryDayPicker">
-          <label>Number of Days
-            <select value={days.length} onChange={e=>handleDayCountChange(Number(e.target.value))}>
-              <option value={0}>—</option>
-              {Array.from({length:21},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} day{n!==1?'s':''}</option>)}
-            </select>
-          </label>
+        <div style={{display:'flex',gap:'.5rem',alignItems:'flex-end'}}>
+          {days.length > 0 && (
+            <button className="btn secondary" onClick={handlePrint}>🖨️ Print</button>
+          )}
+          <div className="itineraryDayPicker">
+            <label>Number of Days
+              <select value={days.length} onChange={e=>handleDayCountChange(Number(e.target.value))}>
+                <option value={0}>—</option>
+                {Array.from({length:21},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} day{n!==1?'s':''}</option>)}
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -154,7 +225,17 @@ export default function ItineraryBuilder({ tripId }) {
 
               <div className="itineraryStops">
                 {stops.map(stop => (
-                  <div className={`itineraryStop status-${stop.status.toLowerCase()}`} key={stop.id}>
+                  <div
+                    className={`itineraryStop status-${stop.status.toLowerCase()}`}
+                    key={stop.id}
+                    draggable
+                    onDragStart={() => { dragStop.current = stop.id; }}
+                    onDragEnter={() => { dragOverStop.current = stop.id; }}
+                    onDragEnd={() => handleDragEnd(day.id)}
+                    onDragOver={e => e.preventDefault()}
+                    style={{cursor:'grab'}}
+                  >
+                    <span className="stopDragHandle">⠿</span>
                     <span className="stopIcon">{CATEGORY_ICON[stop.category]||'📍'}</span>
                     <div className="stopInfo">
                       <div style={{display:'flex',alignItems:'center',gap:'.4rem',flexWrap:'wrap'}}>

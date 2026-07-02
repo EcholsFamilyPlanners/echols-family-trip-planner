@@ -1261,3 +1261,59 @@
   border:1px solid var(--border,#e2e8f0);
   padding:.1rem .45rem; border-radius:1rem;
 }
+
+/* ── Itinerary Drag & Drop ─────────────────────────── */
+
+.stopDragHandle {
+  font-size:1.1rem; color:var(--border,#e2e8f0);
+  cursor:grab; flex-shrink:0; padding:0 .2rem;
+  user-select:none;
+}
+.stopDragHandle:active { cursor:grabbing; }
+.itineraryStop[draggable]:hover .stopDragHandle { color:var(--muted,#718096); }
+.itineraryStop.dragging { opacity:0.4; }
+
+/* ── Itinerary Print ───────────────────────────────── */
+
+.itineraryPrintBtn {
+  display:flex; align-items:center; gap:.4rem;
+}
+
+@media print {
+  /* Hide everything except the itinerary content */
+  body > * { display:none !important; }
+  .printableItinerary { display:block !important; }
+
+  .printableItinerary {
+    font-family: Georgia, serif;
+    color: #000;
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .printableItinerary h1 { font-size:1.6rem; margin:0 0 .25rem; }
+  .printableItinerary .printSubtitle { color:#555; margin:0 0 1.5rem; font-size:.9rem; }
+  .printableItinerary .printDay { margin-bottom:1.5rem; page-break-inside:avoid; }
+  .printableItinerary .printDayHeader {
+    border-bottom:2px solid #000; padding-bottom:.3rem;
+    margin-bottom:.6rem; display:flex; justify-content:space-between;
+  }
+  .printableItinerary .printDayTitle { font-size:1.1rem; font-weight:700; }
+  .printableItinerary .printDayCities { font-size:.9rem; color:#555; }
+  .printableItinerary .printStop {
+    display:flex; gap:.75rem; padding:.4rem 0;
+    border-bottom:1px solid #ddd;
+  }
+  .printableItinerary .printStop:last-child { border-bottom:none; }
+  .printableItinerary .printStopTime { width:70px; flex-shrink:0; color:#555; font-size:.85rem; }
+  .printableItinerary .printStopName { font-weight:600; font-size:.9rem; }
+  .printableItinerary .printStopMeta { font-size:.78rem; color:#555; }
+  .printableItinerary .printTotalCost { 
+    margin-top:1rem; font-weight:700; font-size:1rem;
+    border-top:2px solid #000; padding-top:.5rem;
+  }
+  .printableItinerary .printNoBudget { display:none; }
+
+  /* Hide non-print elements */
+  nav, header, .shell, .tabs, button, .btn,
+  .itineraryHeader, .itineraryTotalBar { display:none !important; }
+}
